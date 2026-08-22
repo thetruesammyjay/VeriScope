@@ -898,7 +898,7 @@ The frontend should not expose implementation-specific model files directly.
 
 Install:
 
-- Python 3.11+
+- Python 3.11–3.13
 - `uv`
 - Node.js 20+
 - npm, pnpm, or another compatible Node package manager
@@ -939,6 +939,15 @@ MIN_ARTICLE_LENGTH=100
 MAX_ARTICLE_LENGTH=20000
 
 NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Current-source evidence retrieval
+SEARCH_PROVIDER=
+SEARCH_API_KEY=
+SEARCH_MAX_RESULTS=10
+SEARCH_TIMEOUT_SECONDS=15
+EVIDENCE_MAX_SOURCES=5
+EVIDENCE_MAX_CLAIMS=5
+EVIDENCE_RECENCY_DAYS=30
 ```
 
 Never commit secrets or machine-specific environment files.
