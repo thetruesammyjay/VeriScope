@@ -711,18 +711,17 @@ on the trained model:
 POST /api/v1/predict
 ```
 
-The evidence-aware endpoint will coordinate claim extraction, search of
-current public sources, source filtering, passage ranking, and claim-level
+The evidence-aware endpoint coordinates claim extraction, search of current
+public sources, source filtering, passage ranking, and claim-level
 verification:
 
 ```http
 POST /api/v1/analyze
 ```
 
-The analysis response will keep the two findings separate. It will include the
-classification label and confidence, extracted claims, evidence status,
-source URLs, publication dates when available, retrieval time, model metadata,
-and a responsible-use disclaimer. Evidence may be `supported`, `contradicted`,
+The current response contains extracted claims, evidence passages, source URLs,
+and claim-level evidence statuses. Classifier metadata will be added when the
+ML inference service is connected. Evidence may be `supported`, `contradicted`,
 `mixed`, or `insufficient`; the system must not force a binary factual verdict
 when reliable evidence is unavailable or conflicting.
 
@@ -931,6 +930,8 @@ Example `.env.example`:
 APP_ENV=development
 API_HOST=0.0.0.0
 API_PORT=8000
+# Render supplies PORT automatically; do not commit a production port here.
+PORT=
 
 MODEL_NAME=distilbert
 MODEL_PATH=models/production
@@ -939,9 +940,12 @@ MIN_ARTICLE_LENGTH=100
 MAX_ARTICLE_LENGTH=20000
 
 NEXT_PUBLIC_API_URL=http://localhost:8000
+# Comma-separated browser origins allowed to call the Render API.
+CORS_ORIGINS=http://localhost:3000
 
 # Current-source evidence retrieval
 SEARCH_PROVIDER=
+SEARCH_ENDPOINT=
 SEARCH_API_KEY=
 SEARCH_MAX_RESULTS=10
 SEARCH_TIMEOUT_SECONDS=15
@@ -951,6 +955,15 @@ EVIDENCE_RECENCY_DAYS=30
 ```
 
 Never commit secrets or machine-specific environment files.
+
+For deployment, configure variables in each platform rather than placing
+production URLs in source code:
+
+- **Vercel (`apps/web`)**: set `NEXT_PUBLIC_API_URL` to the deployed Render API
+  URL.
+- **Render (`apps/api`)**: set `API_HOST=0.0.0.0` and `CORS_ORIGINS` to the
+  deployed Vercel origin. Render supplies `PORT` automatically; the API maps
+  that value when `API_PORT` is not set.
 
 ---
 
@@ -1067,6 +1080,13 @@ The API should now be available at:
 
 ```text
 http://localhost:8000
+```
+
+For Render, use an environment-driven start command so the platform-assigned
+port is respected:
+
+```bash
+uv run uvicorn apps.api.main:app --host "$API_HOST" --port "$PORT"
 ```
 
 ---
@@ -1408,11 +1428,11 @@ Combine article text with metadata such as:
 
 ### Evidence verification refinement
 
-The repository now includes the retrieval and verification scaffold. Future
-implementation work includes selecting a search provider, adding claim
-extraction and passage-ranking models, defining source-quality policies,
-evaluating evidence retrieval, and testing the workflow against current-source
-claim-verification data.
+The repository now includes a provider interface, configurable Bing adapter,
+bounded document fetcher, rule-based claim and passage extraction, source
+policies, evidence aggregation, and fixture-backed tests. Future work includes
+evaluating retrieval quality, adding stronger claim-verification models, and
+testing against current-source claim-verification data.
 
 This would move the system closer to fact verification rather than text-pattern classification.
 

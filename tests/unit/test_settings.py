@@ -16,6 +16,19 @@ def test_settings_load_retrieval_environment(monkeypatch):
     assert settings.evidence_recency_days == 7
 
 
+def test_settings_support_render_port_and_cors_origins(monkeypatch):
+    monkeypatch.setenv("PORT", "10000")
+    monkeypatch.setenv("CORS_ORIGINS", "https://news.example, https://admin.example/")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.api_port == 10000
+    assert settings.cors_origin_list == [
+        "https://news.example",
+        "https://admin.example",
+    ]
+
+
 def test_settings_reject_invalid_article_length_range():
     with pytest.raises(ValidationError):
         Settings(

@@ -1,17 +1,24 @@
 
-# Analysis API (classification plus current evidence)
+# Analysis API (current-source evidence)
 
-The evidence-aware workflow will be exposed separately from the existing
-classification endpoint:
+The first implemented evidence workflow is exposed at:
 
 ```text
 POST /api/v1/analyze
 ```
 
-The request accepts article text. The response is designed to include the
-classification label and confidence, extracted claims, evidence status,
-source titles and URLs, publication dates when available, retrieval time,
-model metadata, processing time, and a responsible-use disclaimer.
+The request accepts article text:
+
+```json
+{"text": "The city has 3 hospitals."}
+```
+
+The current response contains extracted claims, evidence passages, source
+URLs, relevance scores, and claim-level statuses. Classifier metadata will be
+added when the ML inference service is connected.
+
+When no search provider is configured, the endpoint remains available and
+returns `insufficient` rather than fabricating evidence.
 
 Evidence statuses are deliberately non-binary:
 
@@ -19,5 +26,6 @@ Evidence statuses are deliberately non-binary:
 supported | contradicted | mixed | insufficient
 ```
 
-The endpoint will not be registered until a concrete search provider,
-document fetcher, and verification model are configured.
+Set `SEARCH_PROVIDER=bing`, `SEARCH_ENDPOINT`, and `SEARCH_API_KEY` to enable
+the live provider adapter. The document fetcher and verification baseline are
+provider-independent.

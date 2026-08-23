@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, model_validator
+from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,18 +27,28 @@ class Settings(BaseSettings):
 
     app_env: str = "development"
     api_host: str = "0.0.0.0"
-    api_port: int = Field(default=8000, ge=1, le=65535)
+    # Render exposes its assigned port as PORT. API_PORT remains convenient
+    # for local development and takes precedence when both are present.
+    api_port: int = Field(
+        default=8000,
+        ge=1,
+        le=65535,
+        validation_alias=AliasChoices("API_PORT", "PORT"),
+    )
 
     model_name: str = "distilbert"
     model_path: Path = Path("models/production")
     min_article_length: int = Field(default=100, ge=1)
     max_article_length: int = Field(default=20_000, ge=1)
 
-    next_public_api_url: str = "http://localhost:8000"
+    # The web app owns NEXT_PUBLIC_API_URL; the API only needs the allowed
+    # browser origins for CORS.
+    cors_origins: str = ""
 
     # Current-source retrieval settings. The provider adapter is selected by
     # name so the API does not depend on a particular search vendor.
     search_provider: str | None = None
+    search_endpoint: str | None = None
     search_api_key: str | None = None
     search_max_results: int = Field(default=10, ge=1, le=100)
     search_timeout_seconds: float = Field(default=15.0, gt=0, le=120)
@@ -46,8 +56,18 @@ class Settings(BaseSettings):
     evidence_max_claims: int = Field(default=5, ge=1, le=50)
     evidence_recency_days: int | None = Field(default=30, ge=0)
 
+    @property
+    def cors_origin_list(self) -> list[str]:
+        """Return normalized origins for FastAPI's CORS middleware."""
+
+        return [
+            origin.strip().rstrip("/")
+            for origin in self.cors_origins.split(",")
+            if origin.strip()
+        ]
+
     @model_validator(mode="after")
-    def validate_article_lengths(self) -> "Settings":
+    def validate_article_lengths(self) -> Settings:
         """Reject an impossible article-length range at startup."""
 
         if self.min_article_length > self.max_article_length:

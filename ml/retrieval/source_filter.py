@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from urllib.parse import urlparse
 
 from .search_client import SearchResult
 
@@ -30,13 +32,29 @@ def filter_sources(
 
     filtered: list[SearchResult] = []
     for result in results:
-        host = result.url.lower()
-        if policy.require_public_url and not result.url.startswith(("http://", "https://")):
+        parsed = urlparse(result.url)
+        host = (parsed.hostname or "").lower().rstrip(".")
+        if policy.require_public_url and parsed.scheme not in {"http", "https"}:
             continue
-        if any(domain.lower() in host for domain in policy.blocked_domains):
+        if policy.require_public_url and not host:
             continue
-        if policy.allowed_domains and not any(domain.lower() in host for domain in policy.allowed_domains):
+        if any(_matches_domain(host, domain) for domain in policy.blocked_domains):
             continue
+        if policy.allowed_domains and not any(
+            _matches_domain(host, domain) for domain in policy.allowed_domains
+        ):
+            continue
+        if policy.max_age_days is not None and result.published_at is not None:
+            published_at = result.published_at
+            if published_at.tzinfo is None:
+                published_at = published_at.replace(tzinfo=UTC)
+            age = datetime.now(UTC) - published_at
+            if age.days > policy.max_age_days:
+                continue
         filtered.append(result)
     return filtered
 
+
+def _matches_domain(host: str, domain: str) -> bool:
+    normalized = domain.lower().strip().lstrip(".").rstrip(".")
+    return bool(normalized) and (host == normalized or host.endswith(f".{normalized}"))
