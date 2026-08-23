@@ -5,6 +5,9 @@ from __future__ import annotations
 from functools import lru_cache
 
 from apps.api.core.config import Settings, get_settings
+from apps.api.services.inference_service import InferenceService
+from ml.classical.predict import ClassicalPredictor
+from ml.inference.loader import load_artifact
 from ml.retrieval.document_fetcher import HttpDocumentFetcher
 from ml.retrieval.search_client import BingSearchClient, EmptySearchClient, SearchClient
 from ml.verification.pipeline import VerificationPipeline
@@ -41,4 +44,19 @@ def get_verification_pipeline() -> VerificationPipeline:
     )
 
 
-__all__ = ["build_search_client", "get_verification_pipeline"]
+@lru_cache(maxsize=1)
+def get_inference_service() -> InferenceService:
+    """Load the classical artifact when it exists in the deployment image."""
+
+    path = get_settings().classical_model_path
+    try:
+        return InferenceService(ClassicalPredictor(load_artifact(path)))
+    except (FileNotFoundError, OSError, ValueError):
+        return InferenceService()
+
+
+__all__ = [
+    "build_search_client",
+    "get_inference_service",
+    "get_verification_pipeline",
+]

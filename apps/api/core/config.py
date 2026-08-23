@@ -5,7 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import AliasChoices, Field, model_validator
+from pydantic import AliasChoices, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -38,6 +38,12 @@ class Settings(BaseSettings):
 
     model_name: str = "distilbert"
     model_path: Path = Path("models/production")
+    classical_model_path: Path = Path("models/classical/model.joblib")
+    # Optional deployment-time download settings for a versioned model
+    # artifact (for example, a GitHub Release asset).
+    model_artifact_url: str | None = None
+    model_artifact_sha256: str | None = None
+    model_artifact_token: SecretStr | None = None
     min_article_length: int = Field(default=100, ge=1)
     max_article_length: int = Field(default=20_000, ge=1)
 

@@ -2,12 +2,27 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 
+from ml.classical.predict import ClassicalPrediction, ClassicalPredictor
+
+
+@dataclass
 class InferenceService:
-    """Placeholder contract consumed by the analysis service."""
+    """Run the selected classical baseline when an artifact is available."""
 
-    def predict(self, article_text: str):
-        """Return a prediction once the ML inference engine is implemented."""
+    predictor: ClassicalPredictor | None = None
 
-        del article_text
-        raise NotImplementedError("Production inference is not implemented yet.")
+    @property
+    def available(self) -> bool:
+        return self.predictor is not None
+
+    def predict(self, article_text: str) -> ClassicalPrediction | None:
+        """Return a prediction, or ``None`` until an artifact is trained."""
+
+        if self.predictor is None:
+            return None
+        return self.predictor.predict(article_text)
+
+
+__all__ = ["InferenceService"]

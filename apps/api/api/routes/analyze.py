@@ -5,31 +5,30 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
 
-from apps.api.api.dependencies import get_verification_pipeline
+from apps.api.api.dependencies import get_inference_service, get_verification_pipeline
+from apps.api.schemas.analysis import AnalysisRequest, AnalysisResponse
+from apps.api.schemas.prediction import PredictionResponse
 from apps.api.schemas.verification import (
     ClaimAssessmentResponse,
     EvidencePassageResponse,
     VerificationResponse,
 )
+from apps.api.services.inference_service import InferenceService
 from ml.verification.pipeline import VerificationPipeline
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 
 
-class AnalyzeRequest(BaseModel):
-    text: str = Field(min_length=1, max_length=20_000)
-
-
-@router.post("/analyze", response_model=VerificationResponse)
+@router.post("/analyze", response_model=AnalysisResponse)
 def analyze(
-    request: AnalyzeRequest,
+    request: AnalysisRequest,
     pipeline: Annotated[
         VerificationPipeline, Depends(get_verification_pipeline)
     ],
-) -> VerificationResponse:
-    """Return current-source evidence assessments for an article."""
+    inference: Annotated[InferenceService, Depends(get_inference_service)],
+) -> AnalysisResponse:
+    """Return the classical prediction and current-source assessment."""
 
     summary = pipeline.verify(request.text)
     claims = [
@@ -53,7 +52,26 @@ def analyze(
         )
         for assessment in summary.assessments
     ]
-    return VerificationResponse(status=summary.status, claims=claims)
+    prediction = inference.predict(request.text)
+    if prediction is None:
+        prediction_response = PredictionResponse(
+            available=False,
+            error="Classical model artifact is not available. Train and deploy it first.",
+        )
+    else:
+        prediction_response = PredictionResponse(
+            available=True,
+            label=prediction.label,
+            confidence=prediction.confidence,
+            model=prediction.model,
+            model_version=prediction.model_version,
+            processing_time_ms=prediction.processing_time_ms,
+            disclaimer=prediction.disclaimer,
+        )
+    return AnalysisResponse(
+        prediction=prediction_response,
+        verification=VerificationResponse(status=summary.status, claims=claims),
+    )
 
 
-__all__ = ["AnalyzeRequest", "analyze", "router"]
+__all__ = ["analyze", "router"]

@@ -1,28 +1,20 @@
-"""Schemas for the classification-plus-current-evidence workflow."""
+"""Schemas for combined classification and current-source analysis."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from pydantic import BaseModel, Field
 
-from .claim import ClaimAssessmentSchema
-from .evidence import EvidenceSchema
-
-
-@dataclass(frozen=True)
-class AnalysisRequest:
-    text: str
+from .prediction import PredictionResponse
+from .verification import VerificationResponse
 
 
-@dataclass(frozen=True)
-class AnalysisResponse:
-    label: str
-    confidence: float
-    model: str
-    model_version: str
-    processing_time_ms: float
-    evidence: EvidenceSchema
-    claims: tuple[ClaimAssessmentSchema, ...] = field(default_factory=tuple)
-    disclaimer: str = (
-        "This is a machine-learning and evidence-retrieval assessment, not independent factual verification."
-    )
+class AnalysisRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=20_000)
 
+
+class AnalysisResponse(BaseModel):
+    prediction: PredictionResponse
+    verification: VerificationResponse
+
+
+__all__ = ["AnalysisRequest", "AnalysisResponse"]

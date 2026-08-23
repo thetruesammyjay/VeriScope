@@ -719,9 +719,11 @@ verification:
 POST /api/v1/analyze
 ```
 
-The current response contains extracted claims, evidence passages, source URLs,
-and claim-level evidence statuses. Classifier metadata will be added when the
-ML inference service is connected. Evidence may be `supported`, `contradicted`,
+The current response contains a classical TF-IDF + Logistic Regression
+prediction when `CLASSICAL_MODEL_PATH` points to a trained artifact, together
+with extracted claims, evidence passages, source URLs, and claim-level
+evidence statuses. Transformer model metadata can be added later without
+changing the evidence contract. Evidence may be `supported`, `contradicted`,
 `mixed`, or `insufficient`; the system must not force a binary factual verdict
 when reliable evidence is unavailable or conflicting.
 
@@ -935,6 +937,11 @@ PORT=
 
 MODEL_NAME=distilbert
 MODEL_PATH=models/production
+CLASSICAL_MODEL_PATH=models/classical/model.joblib
+# Optional Render build-time download of a versioned GitHub Release asset.
+MODEL_ARTIFACT_URL=
+MODEL_ARTIFACT_SHA256=
+MODEL_ARTIFACT_TOKEN=
 
 MIN_ARTICLE_LENGTH=100
 MAX_ARTICLE_LENGTH=20000
@@ -964,6 +971,21 @@ production URLs in source code:
 - **Render (`apps/api`)**: set `API_HOST=0.0.0.0` and `CORS_ORIGINS` to the
   deployed Vercel origin. Render supplies `PORT` automatically; the API maps
   that value when `API_PORT` is not set.
+
+To deploy the trained classical model without committing the binary to Git,
+upload `model.joblib` as a GitHub Release asset. Configure its public release
+URL in `MODEL_ARTIFACT_URL` (and configure `MODEL_ARTIFACT_TOKEN` only for a
+private release). If available, set `MODEL_ARTIFACT_SHA256` to the published
+SHA-256 digest. Use this Render build command:
+
+```bash
+uv sync --frozen && uv run python scripts/download_model.py --required
+```
+
+The script downloads the artifact atomically into `CLASSICAL_MODEL_PATH` and
+the API loads it at startup. When `MODEL_ARTIFACT_URL` is empty, local builds
+continue without a model artifact and the API reports prediction unavailability
+instead of failing to start.
 
 ---
 
@@ -1026,7 +1048,8 @@ uv run python -m ml.data.split
 ## Train the Classical Model
 
 ```bash
-uv run python -m ml.classical.train
+uv run python -m ml.classical.train datasets/processed/train.csv \
+  --artifact-path models/classical/model.joblib
 ```
 
 Artifacts are written to:

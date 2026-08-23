@@ -29,6 +29,21 @@ def test_settings_support_render_port_and_cors_origins(monkeypatch):
     ]
 
 
+def test_settings_load_model_artifact_environment(monkeypatch):
+    monkeypatch.setenv(
+        "MODEL_ARTIFACT_URL",
+        "https://github.com/example/repo/releases/download/model-v1/model.joblib",
+    )
+    monkeypatch.setenv("MODEL_ARTIFACT_SHA256", "a" * 64)
+    monkeypatch.setenv("MODEL_ARTIFACT_TOKEN", "secret")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.model_artifact_url.endswith("/model.joblib")
+    assert settings.model_artifact_sha256 == "a" * 64
+    assert settings.model_artifact_token.get_secret_value() == "secret"
+
+
 def test_settings_reject_invalid_article_length_range():
     with pytest.raises(ValidationError):
         Settings(
