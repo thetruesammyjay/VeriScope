@@ -1,0 +1,129 @@
+{
+  "model": "tfidf_logistic_regression",
+  "model_version": "classical-tfidf-logreg-0.1.0",
+  "sample_count": 3909,
+  "labels": [
+    "likely_fake",
+    "likely_real"
+  ],
+  "metrics": {
+    "accuracy": 0.990023023791251,
+    "precision_macro": 0.9900591875168147,
+    "recall_macro": 0.9898434225061363,
+    "f1_macro": 0.9899496496903992,
+    "precision_weighted": 0.9900240905678164,
+    "recall_weighted": 0.990023023791251,
+    "f1_weighted": 0.9900219253765675
+  },
+  "confusion_matrix": [
+    [
+      1768,
+      22
+    ],
+    [
+      17,
+      2102
+    ]
+  ],
+  "calibration": {
+    "expected_calibration_error": 0.05226223639893147,
+    "bins": [
+      {
+        "lower": 0.5,
+        "upper": 0.6,
+        "count": 46,
+        "accuracy": 0.6086956521739131,
+        "mean_confidence": 0.5552809616421378
+      },
+      {
+        "lower": 0.6,
+        "upper": 0.7,
+        "count": 79,
+        "accuracy": 0.8354430379746836,
+        "mean_confidence": 0.6549934944885502
+      },
+      {
+        "lower": 0.7,
+        "upper": 0.8,
+        "count": 129,
+        "accuracy": 0.9689922480620154,
+        "mean_confidence": 0.7585478816657234
+      },
+      {
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 417,
+        "accuracy": 0.9952038369304557,
+        "mean_confidence": 0.8621989264929175
+      },
+      {
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 3238,
+        "accuracy": 0.9993823347745522,
+        "mean_confidence": 0.9669641379042675
+      }
+    ],
+    "brier_score": 0.013003670506953583
+  },
+  "confidence_distribution": {
+    "count": 3909,
+    "min": 0.5029875321112585,
+    "max": 0.9993391174700592,
+    "mean": 0.9377607873923195,
+    "median": 0.9668467414439722,
+    "std": 0.07979540291534686,
+    "bins": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.3,
+        "count": 0
+      },
+      {
+        "lower": 0.3,
+        "upper": 0.4,
+        "count": 0
+      },
+      {
+        "lower": 0.4,
+        "upper": 0.5,
+        "count": 0
+      },
+      {
+        "lower": 0.5,
+        "upper": 0.6,
+        "count": 46
+      },
+      {
+        "lower": 0.6,
+        "upper": 0.7,
+        "count": 79
+      },
+      {
+        "lower": 0.7,
+        "upper": 0.8,
+        "count": 129
+      },
+      {
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 417
+      },
+      {
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 3238
+      }
+    ]
+  }
+}

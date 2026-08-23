@@ -23,6 +23,8 @@ def test_analyze_returns_fixture_based_evidence():
     )
     app = create_app()
     app.dependency_overrides[get_verification_pipeline] = lambda: pipeline
+    # Keep this test independent of a locally downloaded production artifact.
+    app.dependency_overrides[get_inference_service] = lambda: InferenceService()
 
     try:
         response = TestClient(app).post(

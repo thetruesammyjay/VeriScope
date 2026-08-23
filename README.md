@@ -1037,10 +1037,31 @@ Build the processed dataset:
 uv run python -m ml.data.build_dataset
 ```
 
+The command reads `Fake.csv` and `True.csv`, assigns the canonical labels
+`likely_fake` and `likely_real`, combines title and body text, removes exact
+and conflicting duplicates, validates the schema, and writes:
+
+```text
+datasets/processed/dataset.csv
+```
+
 Create reproducible train, validation, and test splits:
 
 ```bash
 uv run python -m ml.data.split
+```
+
+Splitting is deterministic (seed `42` by default), stratified by label, and
+writes `train.csv`, `validation.csv`, and `test.csv` into
+`datasets/processed/`.
+
+For a leakage-resistant chronological experiment, use the temporal strategy;
+it places the oldest records in training and the newest records in testing:
+
+```bash
+uv run python -m ml.data.split \
+  --strategy temporal \
+  --output-dir datasets/processed/temporal
 ```
 
 ---
@@ -1079,10 +1100,18 @@ GPU acceleration is recommended for this stage.
 ## Evaluate the Models
 
 ```bash
-uv run python -m ml.evaluation.compare_models
+uv run python -m ml.evaluation.compare_models \
+  --test-csv datasets/processed/test.csv \
+  --artifact-path models/classical/model.joblib \
+  --output-dir reports/metrics/classical
 ```
 
-Outputs may include:
+The evaluation writes accuracy, macro and weighted precision, recall,
+F1-score, the confusion matrix, calibration metrics (ECE and Brier score),
+per-row predictions, and the confidence distribution to
+`reports/metrics/classical/`.
+
+Outputs include:
 
 ```text
 reports/
