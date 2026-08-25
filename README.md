@@ -1064,6 +1064,9 @@ uv run python -m ml.data.split \
   --output-dir datasets/processed/temporal
 ```
 
+Rows with malformed dates are excluded from temporal splits and reported as a
+warning; they remain available in the regular random split.
+
 ---
 
 ## Train the Classical Model

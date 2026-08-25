@@ -106,3 +106,20 @@ def test_temporal_split_keeps_future_dates_out_of_training():
 
     assert max(splits["train"]["date"]) < min(splits["validation"]["date"])
     assert max(splits["validation"]["date"]) < min(splits["test"]["date"])
+
+
+def test_temporal_split_excludes_unparseable_dates_with_warning():
+    frame = pd.DataFrame(
+        {
+            "text": [f"Article {index}" for index in range(12)],
+            "label": ["likely_fake", "likely_real"] * 6,
+            "date": ["not-a-date"] + list(
+                pd.date_range("2020-01-01", periods=11, freq="D").astype(str)
+            ),
+        }
+    )
+
+    with pytest.warns(UserWarning, match="unparseable"):
+        splits = temporal_split_dataframe(frame)
+
+    assert sum(len(split) for split in splits.values()) == 11

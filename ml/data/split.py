@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -93,9 +94,17 @@ def temporal_split_dataframe(
         raise ValueError(f"Temporal splitting requires a {date_column!r} column")
     working["label"] = working["label"].map(canonical_label)
     validate_dataset(working)
-    dates = pd.to_datetime(working[date_column], errors="coerce")
-    if dates.isna().any():
-        raise ValueError(f"Column {date_column!r} contains unparseable dates")
+    dates = pd.to_datetime(working[date_column], errors="coerce", format="mixed")
+    invalid_dates = dates.isna()
+    if invalid_dates.any():
+        warnings.warn(
+            f"Excluding {int(invalid_dates.sum())} rows with unparseable "
+            f"{date_column!r} values from temporal splits.",
+            UserWarning,
+            stacklevel=2,
+        )
+        working = working.loc[~invalid_dates].reset_index(drop=True)
+        dates = dates.loc[~invalid_dates].reset_index(drop=True)
     ordered = working.assign(_parsed_date=dates).sort_values(
         ["_parsed_date"], kind="mergesort"
     )
