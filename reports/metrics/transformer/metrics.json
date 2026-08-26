@@ -1,0 +1,101 @@
+{
+  "model": "transformer_sequence_classifier",
+  "model_version": "transformer-distilbert-0.1.0",
+  "sample_count": 3909,
+  "labels": [
+    "likely_fake",
+    "likely_real"
+  ],
+  "metrics": {
+    "accuracy": 0.9994883601944231,
+    "precision_macro": 0.9994419642857143,
+    "recall_macro": 0.9995280792826805,
+    "f1_macro": 0.9994847545881753,
+    "precision_weighted": 0.9994889312209918,
+    "recall_weighted": 0.9994883601944231,
+    "f1_weighted": 0.9994883822470607
+  },
+  "confusion_matrix": [
+    [
+      1790,
+      0
+    ],
+    [
+      2,
+      2117
+    ]
+  ],
+  "calibration": {
+    "expected_calibration_error": 0.0004261571539427855,
+    "bins": [
+      {
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 3909,
+        "accuracy": 0.9994883601944231,
+        "mean_confidence": 0.9999145173483659
+      }
+    ],
+    "brier_score": 0.00047432369573593026
+  },
+  "confidence_distribution": {
+    "count": 3909,
+    "min": 0.9267081022262573,
+    "max": 0.9999884366989136,
+    "mean": 0.9999145173483659,
+    "median": 0.9999868869781494,
+    "std": 0.0013230645712300195,
+    "bins": [
+      {
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0
+      },
+      {
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0
+      },
+      {
+        "lower": 0.2,
+        "upper": 0.3,
+        "count": 0
+      },
+      {
+        "lower": 0.3,
+        "upper": 0.4,
+        "count": 0
+      },
+      {
+        "lower": 0.4,
+        "upper": 0.5,
+        "count": 0
+      },
+      {
+        "lower": 0.5,
+        "upper": 0.6,
+        "count": 0
+      },
+      {
+        "lower": 0.6,
+        "upper": 0.7,
+        "count": 0
+      },
+      {
+        "lower": 0.7,
+        "upper": 0.8,
+        "count": 0
+      },
+      {
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 0
+      },
+      {
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 3909
+      }
+    ]
+  }
+}
