@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1180" viewBox="0 0 1100 1180">
+  <defs><marker id="aarr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#344054"/></marker><style>.box{stroke-width:2}.t{font:16px Arial,sans-serif;fill:#101828;text-anchor:middle}.edge{stroke:#344054;stroke-width:2;fill:none;marker-end:url(#aarr)}.yn{font:700 14px Arial,sans-serif;fill:#344054}</style></defs>
+  <rect width="1100" height="1140" fill="#fff"/>
+  <circle cx="550" cy="30" r="15" fill="#101828"/>
+  <rect class="box" x="405" y="65" width="290" height="58" rx="14" fill="#dae8fc" stroke="#6c8ebf"/><text class="t" x="550" y="100">User submits article or claim</text>
+  <rect class="box" x="380" y="155" width="340" height="62" rx="14" fill="#fff2cc" stroke="#d6b656"/><text class="t" x="550" y="192">Validate type and configured text length</text>
+  <polygon class="box" points="550,250 635,305 550,360 465,305" fill="#fff2cc" stroke="#d6b656"/><text class="t" x="550" y="311">Valid?</text>
+  <rect class="box" x="70" y="275" width="240" height="60" rx="14" fill="#f8cecc" stroke="#b85450"/><text class="t" x="190" y="311">Return validation message</text>
+  <circle cx="190" cy="385" r="16" fill="#101828"/><circle cx="190" cy="385" r="10" fill="#fff"/>
+  <rect class="box" x="420" y="405" width="260" height="62" rx="14" fill="#d5e8d4" stroke="#82b366"/><text class="t" x="550" y="442">Extract checkable claims</text>
+  <rect class="box" x="385" y="510" width="330" height="66" rx="14" fill="#e1d5e7" stroke="#9673a6"/><text class="t" x="550" y="536"><tspan x="550">Search, filter, fetch and rank</tspan><tspan x="550" dy="21">current sources</tspan></text>
+  <polygon class="box" points="550,615 650,675 550,735 450,675" fill="#fff2cc" stroke="#d6b656"/><text class="t" x="550" y="669"><tspan x="550">Relevant evidence</tspan><tspan x="550" dy="20">found?</tspan></text>
+  <rect class="box" x="235" y="775" width="310" height="64" rx="14" fill="#d5e8d4" stroke="#82b366"/><text class="t" x="390" y="801"><tspan x="390">Extract passages and assess</tspan><tspan x="390" dy="20">each claim</tspan></text>
+  <rect class="box" x="680" y="777" width="220" height="60" rx="14" fill="#f8cecc" stroke="#b85450"/><text class="t" x="790" y="802"><tspan x="790">Assign insufficient</tspan><tspan x="790" dy="20">evidence</tspan></text>
+  <polygon class="box" points="550,875 610,915 550,955 490,915" fill="#fff2cc" stroke="#d6b656"/>
+  <rect class="box" x="410" y="980" width="280" height="62" rx="14" fill="#ffe6cc" stroke="#d79b00"/><text class="t" x="550" y="1017">Run selected text classifier</text>
+  <rect class="box" x="330" y="1065" width="440" height="58" rx="14" fill="#dae8fc" stroke="#6c8ebf"/><text class="t" x="550" y="1088"><tspan x="550">Combine prediction, evidence status,</tspan><tspan x="550" dy="20">provenance and disclaimer</tspan></text>
+  <circle cx="550" cy="1160" r="16" fill="#101828"/><circle cx="550" cy="1160" r="10" fill="#fff"/>
+  <path class="edge" d="M550 45 V65 M550 123 V155 M550 217 V250"/>
+  <path class="edge" d="M465 305 H310"/><text class="yn" x="370" y="293">No</text>
+  <path class="edge" d="M190 335 V369"/>
+  <path class="edge" d="M550 360 V405"/><text class="yn" x="565" y="385">Yes</text>
+  <path class="edge" d="M550 467 V510 M550 576 V615"/>
+  <path class="edge" d="M500 705 L410 775"/><text class="yn" x="450" y="724">Yes</text>
+  <path class="edge" d="M600 705 L790 777"/><text class="yn" x="650" y="724">No</text>
+  <path class="edge" d="M390 839 V860 H520 L535 885 M790 837 V860 H580 L565 885"/>
+  <path class="edge" d="M550 955 V980 M550 1042 V1065 M550 1123 V1144"/>
+</svg>

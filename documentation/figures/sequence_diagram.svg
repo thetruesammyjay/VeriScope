@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820">
+  <defs><marker id="sarr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#344054"/></marker><style>.head{font:700 14px Arial,sans-serif;fill:#101828;text-anchor:middle}.life{stroke:#98a2b3;stroke-width:1.5;stroke-dasharray:7 6}.msg{stroke:#344054;stroke-width:1.8;fill:none;marker-end:url(#sarr)}.ret{stroke-dasharray:7 5}.lbl{font:13px Arial,sans-serif;fill:#101828;text-anchor:middle}</style></defs>
+  <rect width="1400" height="820" fill="#fff"/>
+  <g>
+    <rect x="35" y="35" width="120" height="48" fill="#fff" stroke="#344054" stroke-width="2"/><text class="head" x="95" y="64">User</text>
+    <rect x="210" y="35" width="140" height="48" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/><text class="head" x="280" y="64">Web client</text>
+    <rect x="405" y="35" width="140" height="48" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/><text class="head" x="475" y="64">FastAPI</text>
+    <rect x="600" y="35" width="150" height="48" fill="#ffe6cc" stroke="#d79b00" stroke-width="2"/><text class="head" x="675" y="64">Inference service</text>
+    <rect x="805" y="35" width="145" height="48" fill="#f5f5f5" stroke="#666" stroke-width="2"/><text class="head" x="878" y="64">ClassicalPredictor</text>
+    <rect x="1005" y="35" width="165" height="48" fill="#d5e8d4" stroke="#82b366" stroke-width="2"/><text class="head" x="1088" y="64">Verification pipeline</text>
+    <rect x="1225" y="35" width="150" height="48" fill="#e1d5e7" stroke="#9673a6" stroke-width="2"/><text class="head" x="1300" y="64">Search / source web</text>
+    <line class="life" x1="95" y1="83" x2="95" y2="785"/><line class="life" x1="280" y1="83" x2="280" y2="785"/><line class="life" x1="475" y1="83" x2="475" y2="785"/><line class="life" x1="675" y1="83" x2="675" y2="785"/><line class="life" x1="878" y1="83" x2="878" y2="785"/><line class="life" x1="1088" y1="83" x2="1088" y2="785"/><line class="life" x1="1300" y1="83" x2="1300" y2="785"/>
+  </g>
+  <g>
+    <path class="msg" d="M95 135 H280"/><text class="lbl" x="188" y="126">1. Request analysis</text>
+    <path class="msg" d="M280 190 H475"/><text class="lbl" x="378" y="181">2. POST /api/v1/analyze</text>
+    <path class="msg" d="M475 235 h55 v35 h-55"/><text class="lbl" x="540" y="227">3. Validate</text>
+    <path class="msg" d="M475 315 H1088"/><text class="lbl" x="782" y="306">4. verify(text)</text>
+    <path class="msg" d="M1088 370 H1300"/><text class="lbl" x="1194" y="361">5. Search and fetch</text>
+    <path class="msg ret" d="M1300 425 H1088"/><text class="lbl" x="1194" y="416">6. Results and source content</text>
+    <path class="msg ret" d="M1088 480 H475"/><text class="lbl" x="782" y="471">7. Claim assessments and provenance</text>
+    <path class="msg" d="M475 545 H675"/><text class="lbl" x="575" y="536">8. predict(text)</text>
+    <path class="msg" d="M675 600 H878"/><text class="lbl" x="777" y="591">9. Run classifier</text>
+    <path class="msg ret" d="M878 655 H475"/><text class="lbl" x="677" y="646">10. Label, confidence and metadata</text>
+    <path class="msg ret" d="M475 685 H280"/><text class="lbl" x="378" y="676">11. Structured response</text>
+    <path class="msg ret" d="M280 745 H95"/><text class="lbl" x="188" y="726"><tspan x="188">12. Prediction, evidence</tspan><tspan x="188" dy="17">and disclaimer</tspan></text>
+  </g>
+</svg>

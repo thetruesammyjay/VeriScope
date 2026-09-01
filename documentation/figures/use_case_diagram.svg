@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="760" viewBox="0 0 1300 760">
+  <defs><marker id="uarr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#667085"/></marker><style>.title{font:700 21px Arial,sans-serif;fill:#101828}.text{font:15px Arial,sans-serif;fill:#101828;text-anchor:middle}.actor{stroke:#344054;stroke-width:2;fill:none}.link{stroke:#667085;stroke-width:1.8;fill:none}.uc{stroke-width:2}.stereo{font:italic 13px Arial,sans-serif;fill:#475467}</style></defs>
+  <rect width="1300" height="760" fill="#fff"/>
+  <rect x="230" y="35" width="820" height="680" rx="18" fill="#fff" stroke="#344054" stroke-width="2"/>
+  <text x="640" y="68" text-anchor="middle" class="title">Automated Fake News Detection System</text>
+  <g class="actor"><circle cx="90" cy="290" r="22"/><path d="M90 312 V375 M50 335 H130 M90 375 L55 430 M90 375 L125 430"/></g><text class="text" x="90" y="458">News reader</text>
+  <g class="actor"><circle cx="1190" cy="245" r="22"/><path d="M1190 267 V330 M1150 290 H1230 M1190 330 L1155 385 M1190 330 L1225 385"/></g><text class="text" x="1190" y="414"><tspan x="1190">Researcher /</tspan><tspan x="1190" dy="20">administrator</tspan></text>
+  <g class="actor"><circle cx="1190" cy="565" r="22"/><path d="M1190 587 V650 M1150 610 H1230 M1190 650 L1155 700 M1190 650 L1225 700"/></g><text class="text" x="1190" y="732">Search provider</text>
+  <g>
+    <ellipse class="uc" cx="410" cy="140" rx="140" ry="42" fill="#dae8fc" stroke="#6c8ebf"/><text class="text" x="410" y="145">Submit article or claim</text>
+    <ellipse class="uc" cx="410" cy="250" rx="150" ry="48" fill="#dae8fc" stroke="#6c8ebf"/><text class="text" x="410" y="245"><tspan x="410">Receive likely real / likely fake</tspan><tspan x="410" dy="20">prediction</tspan></text>
+    <ellipse class="uc" cx="410" cy="380" rx="150" ry="48" fill="#d5e8d4" stroke="#82b366"/><text class="text" x="410" y="375"><tspan x="410">Review claims, evidence</tspan><tspan x="410" dy="20">and source links</tspan></text>
+    <ellipse class="uc" cx="410" cy="510" rx="155" ry="48" fill="#fff2cc" stroke="#d6b656"/><text class="text" x="410" y="505"><tspan x="410">View uncertainty and</tspan><tspan x="410" dy="20">responsible-use disclaimer</tspan></text>
+    <ellipse class="uc" cx="820" cy="135" rx="150" ry="42" fill="#e1d5e7" stroke="#9673a6"/><text class="text" x="820" y="140">Prepare and validate dataset</text>
+    <ellipse class="uc" cx="820" cy="245" rx="150" ry="42" fill="#e1d5e7" stroke="#9673a6"/><text class="text" x="820" y="250">Train and evaluate models</text>
+    <ellipse class="uc" cx="820" cy="355" rx="150" ry="42" fill="#e1d5e7" stroke="#9673a6"/><text class="text" x="820" y="360">Publish versioned model artifact</text>
+    <ellipse class="uc" cx="820" cy="465" rx="160" ry="48" fill="#e1d5e7" stroke="#9673a6"/><text class="text" x="820" y="460"><tspan x="820">Configure search and</tspan><tspan x="820" dy="20">deployment settings</tspan></text>
+    <ellipse class="uc" cx="800" cy="610" rx="165" ry="45" fill="#f8cecc" stroke="#b85450"/><text class="text" x="800" y="615">Search current public sources</text>
+  </g>
+  <path class="link" d="M130 335 L270 150 M130 350 L260 250 M130 365 L260 380 M130 380 L255 510"/>
+  <path class="link" d="M1150 280 L970 135 M1150 295 L970 245 M1150 310 L970 355 M1150 325 L980 465"/>
+  <path class="link" d="M1150 610 L965 610"/>
+  <path d="M555 395 L650 590" stroke="#667085" stroke-width="1.8" stroke-dasharray="7 6" fill="none" marker-end="url(#uarr)"/>
+  <text class="stereo" x="566" y="510">&lt;&lt;include&gt;&gt;</text>
+</svg>

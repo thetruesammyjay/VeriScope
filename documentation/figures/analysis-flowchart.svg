@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1740" viewBox="0 0 1100 1740" role="img" aria-labelledby="title desc">
+  <title id="title">Runtime flowchart for automated fake-news analysis</title>
+  <desc id="desc">The implemented route validates submitted text, completes current-source verification, runs classical inference, assembles both outputs, and returns a structured response.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0 0 L0 6 L9 3 Z" fill="#315b7d"/></marker>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#17324a" flood-opacity="0.15"/></filter>
+    <style>.heading{font:700 30px Arial,sans-serif;fill:#17324a}.label{font:700 18px Arial,sans-serif;fill:#17324a}.body{font:16px Arial,sans-serif;fill:#36556d}.node{fill:#f7fbfe;stroke:#315b7d;stroke-width:2.5;filter:url(#shadow)}.action{fill:#dceef8;stroke:#315b7d;stroke-width:2.5;filter:url(#shadow)}.decision{fill:#fff1d9;stroke:#b7791f;stroke-width:2.5;filter:url(#shadow)}.result{fill:#e7f4e9;stroke:#39734a;stroke-width:2.5;filter:url(#shadow)}.failure{fill:#fce8e6;stroke:#a33a32;stroke-width:2.5;filter:url(#shadow)}.flow{fill:none;stroke:#315b7d;stroke-width:3;marker-end:url(#arrow)}.branch{font:700 15px Arial,sans-serif;fill:#36556d}</style>
+  </defs>
+  <rect width="1100" height="1740" fill="#fff"/>
+  <text x="550" y="48" text-anchor="middle" class="heading">Automated News Analysis Runtime Flow</text>
+
+  <rect x="400" y="82" width="300" height="76" rx="38" class="node"/><text x="550" y="128" text-anchor="middle" class="label">Start analysis request</text>
+  <path d="M550 158 V205" class="flow"/>
+  <rect x="335" y="205" width="430" height="90" rx="14" class="action"/><text x="550" y="240" text-anchor="middle" class="label">Receive submitted article text</text><text x="550" y="268" text-anchor="middle" class="body">POST /api/v1/analyze</text>
+  <path d="M550 295 V342" class="flow"/>
+  <polygon points="550,342 735,432 550,522 365,432" class="decision"/><text x="550" y="424" text-anchor="middle" class="label">Input satisfies type and</text><text x="550" y="450" text-anchor="middle" class="label">length constraints?</text>
+  <path d="M365 432 H145 V560" class="flow"/><text x="270" y="417" text-anchor="middle" class="branch">No</text>
+  <rect x="20" y="560" width="250" height="100" rx="14" class="failure"/><text x="145" y="598" text-anchor="middle" class="label">Return validation error</text><text x="145" y="627" text-anchor="middle" class="body">Stop request processing</text>
+
+  <path d="M550 522 V575" class="flow"/><text x="570" y="552" class="branch">Yes</text>
+  <rect x="355" y="575" width="390" height="115" rx="14" class="action"/><text x="550" y="612" text-anchor="middle" class="label">Run current-source verification</text><text x="550" y="642" text-anchor="middle" class="body">extract claims • search • fetch</text><text x="550" y="667" text-anchor="middle" class="body">rank passages • assess evidence</text>
+  <path d="M550 690 V738" class="flow"/>
+  <polygon points="550,738 700,813 550,888 400,813" class="decision"/><text x="550" y="805" text-anchor="middle" class="label">Relevant evidence</text><text x="550" y="831" text-anchor="middle" class="label">available?</text>
+  <path d="M400 813 H265 V930 H365" class="flow"/><text x="330" y="797" class="branch">No</text><text x="283" y="906" class="body">insufficient</text>
+  <path d="M550 888 V930" class="flow"/><text x="570" y="914" class="branch">Yes</text>
+  <rect x="365" y="930" width="370" height="96" rx="14" class="result"/><text x="550" y="966" text-anchor="middle" class="label">Evidence assessment</text><text x="550" y="995" text-anchor="middle" class="body">supported • contradicted • mixed • insufficient</text>
+
+  <path d="M550 1026 V1074" class="flow"/>
+  <rect x="355" y="1074" width="390" height="105" rx="14" class="action"/><text x="550" y="1112" text-anchor="middle" class="label">Run classical text inference</text><text x="550" y="1142" text-anchor="middle" class="body">load production artifact</text><text x="550" y="1166" text-anchor="middle" class="body">predict label and confidence</text>
+  <path d="M550 1179 V1225" class="flow"/>
+  <polygon points="550,1225 700,1300 550,1375 400,1300" class="decision"/><text x="550" y="1292" text-anchor="middle" class="label">Model artifact</text><text x="550" y="1318" text-anchor="middle" class="label">available?</text>
+  <path d="M400 1300 H265 V1417 H365" class="flow"/><text x="330" y="1284" class="branch">No</text><text x="277" y="1394" class="body">unavailable</text>
+  <path d="M550 1375 V1417" class="flow"/><text x="570" y="1401" class="branch">Yes</text>
+  <rect x="365" y="1417" width="370" height="96" rx="14" class="result"/><text x="550" y="1453" text-anchor="middle" class="label">Prediction result</text><text x="550" y="1482" text-anchor="middle" class="body">label and confidence, or unavailable</text>
+
+  <path d="M550 1513 V1555" class="flow"/>
+  <rect x="355" y="1555" width="390" height="102" rx="14" class="action"/><text x="550" y="1593" text-anchor="middle" class="label">Assemble structured response</text><text x="550" y="1622" text-anchor="middle" class="body">prediction + claims + evidence + sources</text>
+  <path d="M550 1657 V1680" class="flow"/>
+  <rect x="400" y="1680" width="300" height="52" rx="26" class="result"/><text x="550" y="1713" text-anchor="middle" class="label">Return analysis result</text>
+</svg>

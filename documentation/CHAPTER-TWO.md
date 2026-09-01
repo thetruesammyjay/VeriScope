@@ -1,14 +1,14 @@
 # CHAPTER TWO
 
-# LITERATURE REVIEW
+## LITERATURE REVIEW
 
-This chapter places the study within existing research on automated fake-news detection and evidence-based claim verification. It begins with the meaning of fake news and the different kinds of information a detection system can use. It then considers supervised text classification, TF-IDF, Logistic Regression, transformer models, benchmark datasets, web evidence retrieval, evaluation, Nigerian misinformation research, and responsible deployment. These topics belong in the same discussion because a useful detection system involves more than choosing an algorithm. The data must be prepared carefully, the models must be compared fairly, relevant current evidence must be retrieved, and the result must be communicated without hiding its uncertainty.
+This chapter situates the study within research on automated fake-news detection and evidence-based claim verification. It first clarifies the meaning of fake news and the forms of information available to a detection system. The discussion then turns to supervised text classification, TF-IDF, Logistic Regression, transformer models, benchmark datasets, web evidence retrieval, evaluation, misinformation in Nigeria, and responsible deployment. Taken together, these areas show that a useful detection system depends on more than the choice of an algorithm. Its data must be prepared carefully, competing models must be evaluated on equal terms, current evidence must be retrieved from credible sources, and uncertainty must remain visible in the final result.
 
-## 2.1 Background Concept
+### 2.1 Conceptual Framework
 
-The study begins by analysing the words contained in a news article and then extends that analysis with external evidence. Online reports now move between news sites, search engines, social networks, and messaging applications with very little delay. The same channels that widen access to news can also carry fabricated stories to a large audience. Shu et al. (2017) treat detection as a data-mining problem that can draw on both news content and the social activity surrounding it. From an NLP perspective, Oshikawa, Qian, and Wang (2020) describe the task as difficult and distinguish it from related work on rumours, stance, and fact-checking.
+The conceptual framework begins with the language of a news article and extends the analysis by considering external evidence. Online reports move quickly between news sites, search engines, social networks, and messaging applications. Although these channels broaden access to information, they can spread fabricated stories just as efficiently. Shu et al. (2017) therefore describe fake-news detection as a data-mining problem that may draw on both the content of a report and the social activity surrounding it. From an NLP perspective, Oshikawa, Qian, and Wang (2020) emphasise the difficulty of the task and distinguish it from related work on rumours, stance detection, and fact-checking.
 
-The language used to describe the problem matters. Misinformation may be false even when the person sharing it does not intend to mislead anyone. Disinformation, by contrast, is generally associated with deliberate deception. Fake news usually takes the form of a news report but contains fabricated or seriously misleading information. In practice, these categories overlap, and a simple dataset label cannot capture every question of intention, credibility, or factual accuracy. The system developed in this study makes a narrower judgement: it estimates whether an article resembles the real or fake examples on which it was trained. It does not establish whether each claim in the article is true.
+The terms used to describe the problem are important. Misinformation can be false even when the person sharing it has no intention to mislead, whereas disinformation generally involves deliberate deception. Fake news commonly imitates the form of legitimate reporting while presenting fabricated or seriously misleading information. These categories often overlap, and a binary dataset label cannot fully represent intention, credibility, or factual accuracy. The classifier developed in this study therefore makes a narrower judgement: it estimates whether an article resembles the real or fake examples in its training data. It does not, by itself, establish the truth of every claim in the article.
 
 Researchers have approached the task with different kinds of information. Content-based methods examine the language or structure of a report. Social-context methods consider who shared it, how it spread, and how other users responded. Knowledge-based methods compare claims with external evidence, while multimodal methods combine text with images, audio, or video. The present study begins with article text but does not rely on linguistic patterns alone. It also extracts checkable claims and searches public online sources for recent evidence that may support or contradict them.
 
@@ -16,13 +16,13 @@ Text is usually easy to obtain and can be processed consistently, which makes co
 
 Evidence-based verification is normally organised as a sequence of tasks. A complex article is first reduced to a manageable set of checkable claims. Search queries are then produced for each claim, relevant documents and passages are retrieved, and the evidence is compared with the claim. Thorne et al. (2018) formalised this pattern in FEVER through document retrieval, evidence selection, and claim classification. More recent work has moved beyond fixed collections toward real-world web evidence. AVeriTeC, for example, evaluates systems on both the correctness of their verdict and the quality of the evidence they retrieve (Schlichtkrull et al., 2023, 2024).
 
-The proposed system examines two families of text representation. The classical branch converts documents into sparse TF-IDF vectors. TF-IDF gives greater weight to terms that are frequent within a document but less frequent across the corpus. Unigrams and bigrams can represent individual words and short sequences, after which Logistic Regression learns a weighted decision boundary between the two classes. This branch provides a computationally efficient and comparatively interpretable baseline.
+Two families of text representation are examined. The classical branch converts each document into a sparse TF-IDF vector, giving more influence to terms that are frequent in one article but less common across the wider corpus. Unigrams capture individual words, while bigrams retain short local sequences. Logistic Regression then learns a weighted boundary between the two classes. This combination provides an efficient baseline whose feature weights are more accessible to inspection than those of a deep neural model.
 
 The transformer branch uses DistilBERT. Unlike a bag-of-words representation, a transformer encodes tokens in context using self-attention. Its representation of a word can therefore vary according to surrounding language. DistilBERT is pretrained on large-scale text and then fine-tuned for the binary classification task. Knowledge distillation makes it smaller and faster than the original BERT model while preserving much of BERT's language capability (Sanh et al., 2019).
 
 This comparison is not only about which model records the highest score. DistilBERT may capture context that the classical model misses, but Logistic Regression may train faster, respond more quickly, occupy less storage, and run comfortably on a CPU. A sensible deployment decision must weigh these practical costs against predictive performance and the kinds of errors each model makes.
 
-Figure 2.1 presents the conceptual framework for the proposed system.
+Figure 2.1 brings these elements together in the conceptual framework of the study.
 
 **Figure 2.1: Conceptual Framework for Automated Fake-News Detection Using NLP**
 
@@ -57,19 +57,19 @@ The lower part represents analysis at the time a user submits an article. One pa
 
 The framework also separates stable model training from time-sensitive retrieval. Training may require the complete dataset, repeated experiments, and GPU resources. Evidence retrieval takes place during analysis so that recently published information can be considered. Because current does not always mean credible, the retrieval stage must record dates, prefer authoritative and independent sources, identify duplicated reporting, and avoid treating search rank as evidence quality.
 
-## 2.2 Theoretical Framework
+### 2.2 Theoretical Framework
 
 Four ideas guide the study: supervised learning, statistical text representation, transfer learning, and responsible decision support. They explain where the models learn their patterns, why the classical and transformer approaches behave differently, how the comparison should be carried out, and why the final prediction still requires human judgement.
 
-### 2.2.1 Supervised Machine Learning Theory
+#### 2.2.1 Supervised Machine Learning Theory
 
 Supervised learning uses labelled examples to learn a mapping from inputs to outputs. In this study, each input is a news article and each output is a binary label. The training set is used to estimate model parameters, the validation set supports model and hyperparameter decisions, and the held-out test set estimates performance on unseen examples. Stratification helps preserve the class distribution across these subsets.
 
-What the model learns is a statistical relationship between text and the labels in the dataset. It does not learn a complete account of what is true in the world. Its performance depends on the quality of those labels, the representativeness of the articles, the absence of leakage, and the similarity of later inputs to the training data. This is why the system uses cautious language and why domain shift is treated as a serious limitation.
+The resulting model learns statistical relationships between the articles and their dataset labels; it does not acquire a complete account of what is true in the world. Its performance is shaped by label quality, the representativeness of the articles, the absence of leakage, and the similarity between later inputs and the training data. Cautious result wording and explicit attention to domain shift follow directly from this limitation.
 
 Generalisation is central to the study. A model that memorises training articles may achieve very low training error but perform poorly on unseen data. Duplicate removal, a held-out test set, regularisation, and error analysis are therefore part of the research design. The comparison between a simpler linear classifier and a more expressive transformer also reflects the bias-complexity trade-off: greater model capacity may capture useful context, but it may also increase computational cost and sensitivity to dataset artefacts.
 
-### 2.2.2 Statistical Language Representation
+#### 2.2.2 Statistical Language Representation
 
 Classical text classification commonly represents a document as a vector of term statistics. TF-IDF combines term frequency with inverse document frequency so that common, low-information words receive less influence than terms that better distinguish documents. N-grams extend the representation from individual words to short local sequences.
 
@@ -77,7 +77,7 @@ Ahmed et al. (2017) used n-gram analysis and machine-learning techniques for onl
 
 The weakness of this representation is that it sees language mainly through counts and short sequences. Two sentences can express the same idea with different words, and the same word can mean different things in different settings. Longer relationships within an article are also difficult to represent with short n-grams. The transformer branch is included to examine whether contextual representations handle these cases better.
 
-### 2.2.3 Transfer Learning and Transformer Theory
+#### 2.2.3 Transfer Learning and Transformer Theory
 
 Transformer models use attention mechanisms to represent relationships among tokens. BERT pretrains deep bidirectional language representations and can be adapted to downstream NLP tasks with a task-specific output layer (Devlin et al., 2019). Instead of learning language representation entirely from the fake-news dataset, fine-tuning begins with knowledge obtained during large-scale pretraining.
 
@@ -85,7 +85,7 @@ DistilBERT applies knowledge distillation during pretraining. Sanh et al. (2019)
 
 Fine-tuning adapts the pretrained encoder and classification head to the labelled articles. Tokenisation, truncation, padding, attention masks, optimisation settings, random seeds, and checkpoint selection all influence the experiment. Long articles present a particular challenge because transformer models accept a limited token sequence. Truncation may discard relevant information, while chunking increases complexity. The study must record the selected strategy and treat it as a limitation during evaluation.
 
-### 2.2.4 Evaluation and Decision-Support Theory
+#### 2.2.4 Evaluation and Decision-Support Theory
 
 Binary classification performance can be viewed through true positives, true negatives, false positives, and false negatives. Accuracy measures the overall proportion of correct predictions, but it can be insufficient where class distribution or error costs differ. Precision describes how often a predicted class is correct, recall describes how much of an actual class is found, and F1-score balances precision and recall. A confusion matrix makes the error distribution visible.
 
@@ -93,7 +93,7 @@ For the proposed system, false positives and false negatives have different prac
 
 The output is best understood as an aid to judgement. A confidence score shows how strongly the model favours one class under the patterns it has learned; it is not a measure of objective truth. Any decision with serious consequences still requires a person to examine the article and its evidence. This principle shapes the wording of the result, the disclaimer, and the decision not to use the prediction as an automatic basis for censorship.
 
-### 2.2.5 Information Retrieval and Evidence-Based Verification
+#### 2.2.5 Information Retrieval and Evidence-Based Verification Theory
 
 Information retrieval concerns the selection and ranking of documents that are relevant to a user's information need. In automated fact-checking, the information need is derived from a claim. The system must formulate a useful query, retrieve candidate documents, find the passages that bear directly on the claim, and determine whether those passages support or contradict it. A failure at any early stage can affect the final verdict even when the verification model itself is capable.
 
@@ -103,9 +103,7 @@ Time introduces another dimension. A source published after a claim may be usefu
 
 Source quality cannot be reduced to recency or search position. Primary documents, official statistics, court records, scientific publications, established news reporting, and professional fact-checks may serve different evidential roles. The system should prefer sources with clear authorship, dates, provenance, and direct relevance, seek more than one independent source where possible, and return insufficient or mixed evidence instead of forcing a binary conclusion.
 
-## 2.3 Related Works
-
-### 2.3.1 Fake News as an NLP and Data-Mining Problem
+### 2.3 Empirical Framework
 
 Shu et al. (2017) organised fake-news detection around news content and social context, explaining that deceptive content may be difficult to identify from text alone and that user engagement can add useful signals. Their work provides a broad framework for understanding the task. The present study adopts only the content component, which makes the system easier to use independently of a social platform but limits the evidence available to the model.
 
@@ -113,13 +111,9 @@ Oshikawa et al. (2020) reviewed NLP formulations, datasets, and methods for fake
 
 Zhou and Zafarani (2020) surveyed fundamental theories and detection methods and described the multidisciplinary nature of fake-news research. Their review shows that detection can involve style, knowledge, propagation, and source information. The present system does not claim to cover all these dimensions; it investigates a defined text-classification approach within a deployable architecture.
 
-### 2.3.2 Classical Machine-Learning Approaches
-
 Ahmed et al. (2017) investigated online fake-news detection using n-gram features and machine-learning algorithms. Their results demonstrated that lexical representations can identify useful differences between labelled fake and real articles. Ahmed et al. (2018) extended this direction through text classification for fake news and opinion spam. These studies are directly relevant because the ISOT dataset and the classical approach adopted in this study are associated with this line of work.
 
 Classical approaches commonly combine bag-of-words or TF-IDF features with Naive Bayes, Logistic Regression, Support Vector Machines, Random Forests, or related classifiers. Their major strengths are training efficiency, relatively small artifacts, fast inference, and interpretable feature weights. Their weaknesses include limited context and dependence on observed vocabulary. This study selects Logistic Regression as the primary baseline and retains Linear SVM as an optional benchmark rather than evaluating many algorithms without a clear comparative purpose.
-
-### 2.3.3 Benchmark Datasets
 
 The quality and form of a dataset determine what a model can learn. Wang (2017) introduced LIAR, a benchmark of approximately 12,800 manually labelled short political statements collected from PolitiFact. LIAR supports claim-level and fine-grained truthfulness research, but its short statements differ from the article-level classification workflow adopted in this study.
 
@@ -127,29 +121,21 @@ The ISOT Fake News Dataset contains 21,417 real-news articles and 23,481 fake-ne
 
 ISOT is suitable for article-level experiments and offers enough examples for both a classical model and transformer fine-tuning. However, its source composition creates an important risk. A random split may reward a model for learning Reuters style, topic distributions, or source-specific artefacts rather than broadly generalisable truthfulness cues. The age and geographic focus of the data also limit its relevance to current and Nigerian news. These characteristics require careful interpretation of any high held-out score.
 
-### 2.3.4 Transformer-Based Detection
-
 The publication of BERT shifted many NLP tasks toward pretrained contextual encoders. Devlin et al. (2019) showed that one pretrained bidirectional representation could be fine-tuned for varied downstream tasks without extensive task-specific architecture. Fake-news researchers subsequently applied BERT-family models to text classification because contextual embeddings can represent relationships that sparse lexical features miss.
 
 Kaliyar, Goswami, and Narang (2021) proposed FakeBERT, combining BERT-based representations with a neural classification architecture for fake-news detection. The work illustrates the use of pretrained contextual language models in this domain. Such approaches may improve predictive performance, but they also increase training cost, model size, latency, and the difficulty of explaining individual predictions.
 
 DistilBERT offers a compromise between contextual modelling and efficiency. Sanh et al. (2019) designed it to be smaller and faster than BERT through knowledge distillation. This study uses DistilBERT rather than a larger transformer so that the comparison reflects a realistic model that could later be deployed under constrained resources.
 
-### 2.3.5 Comparative Evaluation of Classical and Deep Models
-
 Recent surveys show that fake-news detection research includes traditional machine learning, deep neural networks, transformers, social-context models, knowledge-based systems, and multimodal approaches (Alghamdi, Luo, & Lin, 2024). Comparisons across papers are difficult because studies often use different datasets, preprocessing rules, splits, metrics, and label definitions. A higher score reported in one paper may therefore not show that its model is better than a model evaluated elsewhere.
 
-The proposed methodology addresses this comparability problem by training the classical and transformer branches on the same prepared dataset and evaluating them through a shared framework. Model selection considers F1-score, class-wise recall, confusion matrices, error examples, latency, artifact size, and deployment hardware. Actual results remain unreported until the experiments are executed; the study does not insert estimated or fabricated metrics.
-
-### 2.3.6 Fake News and Misinformation in Nigeria
+To make the comparison meaningful, the classical and transformer branches are trained on the same prepared dataset and assessed through a shared evaluation framework. Model selection considers F1-score, class-wise recall, confusion matrices, error examples, latency, artifact size, and deployment hardware. This chapter establishes the basis for that comparison, while the measured results are presented and discussed in Chapter Four.
 
 The Nigerian context demonstrates why misinformation tools and media literacy matter, while also showing the need for locally representative data. Ahmed and Msughter (2022) studied COVID-19 fake news among social-media users in Kano State and found substantial awareness and exposure, with respondents associating misinformation with non-adherence to safety measures. Their work concerns user behaviour rather than automated classification, but it shows that misinformation can have consequences beyond online discussion.
 
 The Kano study also illustrates a wider point: misinformation is not only a computational problem. Trust in institutions, media habits, and the conditions under which people receive information all affect what they believe and share. A classifier may assist a reader, but it cannot resolve those social questions on its own.
 
 The primary dataset used in this study is not Nigerian. The system may therefore perform differently on Nigerian names, locations, political topics, journalistic conventions, code-switching, Pidgin English, or locally circulated reports. The present study provides an engineering and experimental foundation, while a locally curated and ethically labelled Nigerian news dataset remains an important direction for future work.
-
-### 2.3.7 Evidence Retrieval from Current Sources
 
 Thorne et al. (2018) introduced FEVER, a large benchmark in which claims are labelled as supported, refuted, or not enough information and are accompanied by evidence sentences. The work demonstrated that retrieving the correct evidence is itself a substantial part of the verification problem. However, FEVER uses a fixed Wikipedia collection and artificially constructed claims, so it does not fully reproduce open-web fact-checking.
 
@@ -161,15 +147,13 @@ Chen et al. (2024) presented a realistic pipeline for complex claims that includ
 
 These studies also expose limitations. Relevant pages may be absent, inaccessible, duplicated, or ranked poorly. Sources may repeat one another without being independent, and a recent page may still be inaccurate. The proposed system therefore treats retrieved material as evidence candidates, records provenance and dates, and allows mixed or insufficient findings.
 
-### 2.3.8 Deployment, Transparency, and Responsible Use
-
 Many studies end with offline metrics, but a usable detection system requires additional engineering. The preprocessing used during training must match production inference. The API must reject empty, malformed, overly short, or oversized input. Model artifacts require metadata and versions. Search timeouts, unavailable pages, conflicting evidence, and unsupported claims require explicit handling. The interface must explain predictions without overstating them and must link evidence summaries back to their sources.
 
-The implementation addresses this layer through a web service, validated request and response schemas, a production model loader, a search and evidence service, structured response fields, a responsive client interface, automated tests, and documentation. The user receives the predicted label, confidence, evidence status, source title, URL, publication date where available, retrieval time, model identity, processing time, and disclaimer. This makes the result more traceable, although a list of sources does not by itself guarantee that the interpretation is correct.
+These concerns are reflected in the system architecture through validated request and response schemas, a production model loader, a search and evidence service, structured response fields, automated tests, and documentation. The result is designed to include the predicted label, confidence, evidence status, source title, URL, publication date where available, retrieval time, model identity, processing time, and a disclaimer. Together, these details improve traceability, although the presence of source links does not guarantee that the evidence has been interpreted correctly.
 
 Responsible deployment also requires limits on use. Text-only classification should not automatically remove content, punish authors, determine legal liability, or replace professional fact-checking. Important claims must be evaluated against evidence. Privacy and security controls should minimise unnecessary retention of submitted text, restrict cross-origin access, validate request sizes, protect model files, and keep secrets outside source control.
 
-## 2.4 Summary of Literature Review
+### 2.4 Summary of Literature Review
 
 The reviewed literature establishes fake-news detection as a significant but difficult NLP and data-mining task. Content-based models can analyse lexical, stylistic, and semantic features, while broader approaches may add social context, source information, external knowledge, or multiple media types. This study uses article text as its input and combines content classification with current web evidence. It does not analyse social propagation or non-textual media, and retrieved sources still require careful interpretation.
 
@@ -179,9 +163,7 @@ Dataset studies show that benchmark choice matters. LIAR is oriented toward shor
 
 Nigerian studies confirm the practical importance of misinformation but do not make a globally trained classifier locally valid. Current-source retrieval can provide locally relevant evidence that is absent from ISOT, but it does not remove the need for a Nigerian evaluation dataset. The reviewed deployment concerns further show that an experimental score must be accompanied by reliable preprocessing, model versioning, retrieval safeguards, source provenance, API validation, testing, security, and responsible-use communication.
 
-## 2.5 Research Gap
-
-The reviewed studies provide important work on fake-news concepts, benchmark datasets, classical classifiers, deep learning, transformers, and misinformation behaviour. However, several gaps remain relevant to the present study.
+The reviewed studies make substantial contributions to the understanding of fake news, benchmark datasets, classical classifiers, deep learning, transformers, and misinformation behaviour. Even so, an important gap remains between high-performing experimental models and systems that can examine current evidence, explain the basis of a result, and operate within realistic deployment constraints.
 
 Several gaps emerge from the reviewed work. Some studies examine only one family of models, while others compare scores produced from different datasets and preprocessing choices. Those results do not reveal, under controlled conditions, what is gained or lost when a lightweight TF-IDF model is replaced by a contextual transformer. Text-only classification also cannot respond adequately to new claims that were not represented in historical training data. Evidence-based systems address this problem, but many are evaluated on fixed knowledge stores rather than current public sources. Accuracy is often given more attention than evidence relevance, source quality, class-specific errors, latency, model size, reproducibility, and deployment cost. In addition, many prototypes end as notebooks or scripts without addressing source provenance, retrieval failure, versioned model artifacts, input validation, a usable interface, automated testing, or responsible presentation. A final concern is local relevance: ISOT is useful for benchmarking, but it does not represent contemporary Nigerian journalism.
 
