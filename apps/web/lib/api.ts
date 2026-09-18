@@ -41,3 +41,25 @@ export function apiUrl(path: string): string {
 
   return new URL(normalizedPath, baseUrl).toString();
 }
+
+export async function analyzeArticle(
+  text: string,
+  signal?: AbortSignal,
+): Promise<AnalysisResponse> {
+  const response = await fetch(apiUrl("/api/v1/analyze"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      detail?: string;
+    } | null;
+    throw new Error(body?.detail || "Analysis could not be completed. Try again.");
+  }
+
+  return response.json() as Promise<AnalysisResponse>;
+}
+import type { AnalysisResponse } from "./types";

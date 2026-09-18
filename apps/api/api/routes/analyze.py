@@ -4,10 +4,15 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from apps.api.api.dependencies import get_inference_service, get_verification_pipeline
-from apps.api.schemas.analysis import AnalysisRequest, AnalysisResponse
+from apps.api.core.config import Settings
+from apps.api.schemas.analysis import (
+    AnalysisRequest,
+    AnalysisResponse,
+    validate_article_text,
+)
 from apps.api.schemas.prediction import PredictionResponse
 from apps.api.schemas.verification import (
     ClaimAssessmentResponse,
@@ -23,6 +28,7 @@ router = APIRouter(prefix="/api/v1", tags=["analysis"])
 @router.post("/analyze", response_model=AnalysisResponse)
 def analyze(
     request: AnalysisRequest,
+    http_request: Request,
     pipeline: Annotated[
         VerificationPipeline, Depends(get_verification_pipeline)
     ],
@@ -30,7 +36,17 @@ def analyze(
 ) -> AnalysisResponse:
     """Return the classical prediction and current-source assessment."""
 
-    summary = pipeline.verify(request.text)
+    settings: Settings = http_request.app.state.settings
+    try:
+        article_text = validate_article_text(
+            request.text,
+            min_length=settings.min_article_length,
+            max_length=settings.max_article_length,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    summary = pipeline.verify(article_text)
     claims = [
         ClaimAssessmentResponse(
             claim_id=assessment.claim.claim_id,
@@ -52,7 +68,7 @@ def analyze(
         )
         for assessment in summary.assessments
     ]
-    prediction = inference.predict(request.text)
+    prediction = inference.predict(article_text)
     if prediction is None:
         prediction_response = PredictionResponse(
             available=False,
