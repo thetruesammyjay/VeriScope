@@ -10,7 +10,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import shutil
+import tarfile
 import tempfile
+import uuid
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -86,6 +89,58 @@ def download_artifact(
     return destination
 
 
+def extract_tar_artifact(archive_path: Path, destination: Path) -> Path:
+    """Safely and atomically extract a model ``.tar`` or ``.tar.gz`` artifact.
+
+    Archives are untrusted deployment input, even when retrieved from a GitHub
+    Release. Symlinks, hard links, devices, and paths outside the staging
+    directory are rejected before any file is extracted.
+    """
+
+    archive_path = Path(archive_path)
+    destination = Path(destination)
+    if not tarfile.is_tarfile(archive_path):
+        raise ValueError(f"Transformer artifact is not a valid tar archive: {archive_path}")
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staging_root = Path(
+        tempfile.mkdtemp(prefix=f".{destination.name}.extract-", dir=destination.parent)
+    )
+    extracted = staging_root / "artifact"
+    extracted.mkdir()
+    resolved_root = extracted.resolve()
+    backup: Path | None = None
+    try:
+        with tarfile.open(archive_path, mode="r:*") as archive:
+            members = archive.getmembers()
+            for member in members:
+                member_path = (extracted / member.name).resolve()
+                if not member_path.is_relative_to(resolved_root):
+                    raise ValueError("Transformer archive contains an unsafe path")
+                if member.issym() or member.islnk() or member.isdev() or member.isfifo():
+                    raise ValueError("Transformer archive contains an unsupported link or device")
+            archive.extractall(extracted, members=members)
+
+        entries = list(extracted.iterdir())
+        source = entries[0] if len(entries) == 1 and entries[0].is_dir() else extracted
+        if not any(source.iterdir()):
+            raise ValueError("Transformer archive is empty")
+
+        if destination.exists():
+            backup = destination.with_name(f".{destination.name}.backup-{uuid.uuid4().hex}")
+            destination.replace(backup)
+        source.replace(destination)
+        if backup:
+            shutil.rmtree(backup)
+        return destination
+    except Exception:
+        if backup and backup.exists() and not destination.exists():
+            backup.replace(destination)
+        raise
+    finally:
+        shutil.rmtree(staging_root, ignore_errors=True)
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", default=os.getenv("MODEL_ARTIFACT_URL"))
@@ -95,6 +150,11 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--sha256", default=os.getenv("MODEL_ARTIFACT_SHA256"))
     parser.add_argument("--token", default=os.getenv("MODEL_ARTIFACT_TOKEN"))
+    parser.add_argument(
+        "--extract-dir",
+        type=Path,
+        help="Safely extract the downloaded tar artifact into this directory.",
+    )
     parser.add_argument("--timeout", type=float, default=120.0)
     parser.add_argument(
         "--required",
@@ -121,7 +181,11 @@ def main() -> int:
         token=args.token,
         timeout_seconds=args.timeout,
     )
-    print(f"Model artifact ready at {path}")
+    if args.extract_dir:
+        path = extract_tar_artifact(path, args.extract_dir)
+        print(f"Model artifact extracted to {path}")
+    else:
+        print(f"Model artifact ready at {path}")
     return 0
 
 
@@ -129,4 +193,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["download_artifact", "main"]
+__all__ = ["download_artifact", "extract_tar_artifact", "main"]

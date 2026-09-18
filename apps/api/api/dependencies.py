@@ -44,19 +44,38 @@ def get_verification_pipeline() -> VerificationPipeline:
     )
 
 
+def load_transformer_predictor(path):
+    """Import PyTorch/Transformers only for a transformer deployment."""
+
+    from ml.transformer.predict import TransformerPredictor
+
+    return TransformerPredictor(path)
+
+
+def build_inference_service(settings: Settings) -> InferenceService:
+    """Load the predictor selected by ``PRODUCTION_MODEL`` when available."""
+
+    try:
+        if settings.production_model == "transformer":
+            return InferenceService(load_transformer_predictor(settings.transformer_model_path))
+        return InferenceService(
+            ClassicalPredictor(load_artifact(settings.classical_model_path))
+        )
+    except (FileNotFoundError, ImportError, OSError, ValueError):
+        return InferenceService()
+
+
 @lru_cache(maxsize=1)
 def get_inference_service() -> InferenceService:
-    """Load the classical artifact when it exists in the deployment image."""
+    """Return the configured production inference service for this process."""
 
-    path = get_settings().classical_model_path
-    try:
-        return InferenceService(ClassicalPredictor(load_artifact(path)))
-    except (FileNotFoundError, OSError, ValueError):
-        return InferenceService()
+    return build_inference_service(get_settings())
 
 
 __all__ = [
     "build_search_client",
+    "build_inference_service",
     "get_inference_service",
     "get_verification_pipeline",
+    "load_transformer_predictor",
 ]

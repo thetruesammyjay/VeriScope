@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import AliasChoices, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -38,12 +39,17 @@ class Settings(BaseSettings):
 
     model_name: str = "distilbert"
     model_path: Path = Path("models/production")
+    production_model: Literal["classical", "transformer"] = "classical"
     classical_model_path: Path = Path("models/classical/model.joblib")
     # Optional deployment-time download settings for a versioned model
     # artifact (for example, a GitHub Release asset).
     model_artifact_url: str | None = None
     model_artifact_sha256: str | None = None
     model_artifact_token: SecretStr | None = None
+    transformer_model_path: Path = Path("models/transformer/distilbert")
+    transformer_model_artifact_url: str | None = None
+    transformer_model_artifact_sha256: str | None = None
+    transformer_model_artifact_token: SecretStr | None = None
     min_article_length: int = Field(default=100, ge=1)
     max_article_length: int = Field(default=20_000, ge=1)
 
@@ -73,8 +79,8 @@ class Settings(BaseSettings):
         ]
 
     @model_validator(mode="after")
-    def validate_article_lengths(self) -> Settings:
-        """Reject an impossible article-length range at startup."""
+    def validate_settings(self) -> Settings:
+        """Reject invalid deployment configuration at startup."""
 
         if self.min_article_length > self.max_article_length:
             raise ValueError(

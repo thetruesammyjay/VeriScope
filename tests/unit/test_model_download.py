@@ -1,9 +1,11 @@
 import hashlib
+import io
+import tarfile
 from pathlib import Path
 
 import pytest
 
-from scripts.download_model import download_artifact
+from scripts.download_model import download_artifact, extract_tar_artifact
 
 
 class _FakeResponse:
@@ -77,3 +79,32 @@ def test_download_artifact_reuses_matching_existing_file(
         destination,
         sha256=digest,
     ) == destination
+
+
+def test_extract_tar_artifact_unwraps_a_single_model_directory(tmp_path: Path):
+    archive_path = tmp_path / "distilbert.tar.gz"
+    with tarfile.open(archive_path, "w:gz") as archive:
+        payload = b'{"model": "transformer_sequence_classifier"}'
+        metadata = tarfile.TarInfo("distilbert/metadata.json")
+        metadata.size = len(payload)
+        archive.addfile(metadata, io.BytesIO(payload))
+
+    destination = extract_tar_artifact(
+        archive_path, tmp_path / "models" / "transformer" / "distilbert"
+    )
+
+    assert destination.joinpath("metadata.json").read_bytes() == payload
+
+
+def test_extract_tar_artifact_rejects_path_traversal(tmp_path: Path):
+    archive_path = tmp_path / "unsafe.tar.gz"
+    with tarfile.open(archive_path, "w:gz") as archive:
+        payload = b"unsafe"
+        member = tarfile.TarInfo("../outside.txt")
+        member.size = len(payload)
+        archive.addfile(member, io.BytesIO(payload))
+
+    with pytest.raises(ValueError, match="unsafe path"):
+        extract_tar_artifact(archive_path, tmp_path / "models" / "distilbert")
+
+    assert not (tmp_path / "outside.txt").exists()
