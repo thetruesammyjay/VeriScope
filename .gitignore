@@ -28,6 +28,7 @@ datasets/splits/*
 models/classical/*
 models/transformer/*
 models/production/*
+release-assets/*
 !**/.gitkeep
 
 # Editors and operating systems

@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: veriscope-api
+    runtime: python
+    buildCommand: uv sync --frozen --no-dev && uv run --no-sync python scripts/download_transformer.py --required
+    startCommand: uv run --no-sync uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PRODUCTION_MODEL
+        value: transformer
+      - key: TRANSFORMER_MODEL_PATH
+        value: models/transformer/distilbert
+      - key: CORS_ORIGINS
+        sync: false
+      - key: TRANSFORMER_MODEL_ARTIFACT_URL
+        sync: false
+      - key: TRANSFORMER_MODEL_ARTIFACT_SHA256
+        sync: false
+      - key: TRANSFORMER_MODEL_ARTIFACT_TOKEN
+        sync: false
+      - key: SEARCH_PROVIDER
+        sync: false
+      - key: SEARCH_ENDPOINT
+        sync: false
+      - key: SEARCH_API_KEY
+        sync: false
