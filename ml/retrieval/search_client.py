@@ -72,11 +72,11 @@ class InMemorySearchClient:
 
 
 @dataclass
-class BingSearchClient:
-    """Adapter for Bing-compatible web search JSON responses."""
+class BraveSearchClient:
+    """Adapter for Brave Search's public web-search API."""
 
-    endpoint: str
     api_key: str
+    endpoint: str = "https://api.search.brave.com/res/v1/web/search"
     timeout_seconds: float = 15.0
 
     def search(
@@ -86,45 +86,40 @@ class BingSearchClient:
         max_results: int = 10,
         recency_days: int | None = None,
     ) -> list[SearchResult]:
-        params = {
-            "q": query,
-            "count": max_results,
-            "textDecorations": "false",
-            "textFormat": "Raw",
-        }
+        params = {"q": query, "count": max_results}
         if recency_days is not None:
-            params["freshness"] = _freshness_label(recency_days)
+            params["freshness"] = _brave_freshness(recency_days)
         response = httpx.get(
             self.endpoint,
             params=params,
-            headers={"Ocp-Apim-Subscription-Key": self.api_key},
+            headers={"Accept": "application/json", "X-Subscription-Token": self.api_key},
             timeout=self.timeout_seconds,
         )
         response.raise_for_status()
-        values = response.json().get("webPages", {}).get("value", [])
+        values = response.json().get("web", {}).get("results", [])
         return [
             SearchResult(
-                title=item.get("name", ""),
+                title=item.get("title", ""),
                 url=item.get("url", ""),
-                snippet=item.get("snippet", ""),
-                published_at=_parse_datetime(item.get("dateLastCrawled")),
-                source_name=(
-                    item.get("provider", [{}])[0].get("name")
-                    if item.get("provider")
-                    else None
-                ),
+                snippet=item.get("description", ""),
+                published_at=_parse_datetime(item.get("page_age")),
+                source_name=item.get("profile", {}).get("long_name"),
             )
             for item in values
             if item.get("url")
         ]
 
 
-def _freshness_label(days: int) -> str:
+def _brave_freshness(days: int) -> str:
+    """Map the pipeline's recency window to Brave's freshness filters."""
+
     if days <= 1:
-        return "Day"
+        return "pd"
     if days <= 7:
-        return "Week"
-    return "Month"
+        return "pw"
+    if days <= 31:
+        return "pm"
+    return "py"
 
 
 def _parse_datetime(value: str | None) -> datetime | None:
@@ -137,7 +132,7 @@ def _parse_datetime(value: str | None) -> datetime | None:
 
 
 __all__ = [
-    "BingSearchClient",
+    "BraveSearchClient",
     "EmptySearchClient",
     "InMemorySearchClient",
     "SearchClient",

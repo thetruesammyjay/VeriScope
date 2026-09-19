@@ -9,21 +9,16 @@ from apps.api.services.inference_service import InferenceService
 from ml.classical.predict import ClassicalPredictor
 from ml.inference.loader import load_artifact
 from ml.retrieval.document_fetcher import HttpDocumentFetcher
-from ml.retrieval.search_client import BingSearchClient, EmptySearchClient, SearchClient
+from ml.retrieval.search_client import BraveSearchClient, EmptySearchClient, SearchClient
 from ml.verification.pipeline import VerificationPipeline
 
 
 def build_search_client(settings: Settings) -> SearchClient:
     """Select a live provider only when its required configuration exists."""
 
-    if (
-        settings.search_provider
-        and settings.search_provider.lower() == "bing"
-        and settings.search_endpoint
-        and settings.search_api_key
-    ):
-        return BingSearchClient(
-            endpoint=settings.search_endpoint,
+    if settings.search_provider and settings.search_provider.lower() == "brave" and settings.search_api_key:
+        return BraveSearchClient(
+            endpoint=settings.search_endpoint or BraveSearchClient.endpoint,
             api_key=settings.search_api_key,
             timeout_seconds=settings.search_timeout_seconds,
         )
@@ -38,6 +33,7 @@ def get_verification_pipeline() -> VerificationPipeline:
         document_fetcher=HttpDocumentFetcher(
             timeout_seconds=settings.search_timeout_seconds,
         ),
+        max_search_results=settings.search_max_results,
         max_claims=settings.evidence_max_claims,
         max_sources=settings.evidence_max_sources,
         recency_days=settings.evidence_recency_days,

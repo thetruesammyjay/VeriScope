@@ -25,6 +25,7 @@ class VerificationPipeline:
     search_client: SearchClient
     document_fetcher: DocumentFetcher | None = None
     source_policy: SourcePolicy | None = None
+    max_search_results: int = 10
     max_claims: int = 5
     max_sources: int = 5
     max_passages: int = 3
@@ -43,7 +44,7 @@ class VerificationPipeline:
             for query in build_queries(claim.text):
                 for result in self.search_client.search(
                     query,
-                    max_results=self.max_sources,
+                    max_results=self.max_search_results,
                     recency_days=self.recency_days,
                 ):
                     if result.url in seen_urls:
