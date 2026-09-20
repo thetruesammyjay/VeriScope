@@ -2,7 +2,7 @@ services:
   - type: web
     name: veriscope-api
     runtime: python
-    buildCommand: uv sync --frozen --no-dev && uv run --no-sync python scripts/download_transformer.py --required
+    buildCommand: uv sync --frozen --no-dev && uv run --no-sync python -m scripts.download_transformer --required
     startCommand: uv run --no-sync uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     autoDeploy: true
