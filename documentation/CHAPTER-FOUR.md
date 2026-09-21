@@ -10,7 +10,7 @@ The classification component contains two model branches. A TF-IDF and Logistic 
 
 The evidence component addresses a limitation of historical training data: a trained classifier cannot already know every new event or claim. During analysis, the system extracts a bounded set of claims, constructs search queries, retrieves candidate pages or snippets, filters and ranks the sources, extracts relevant passages, and assigns an evidence status of `supported`, `contradicted`, `mixed`, or `insufficient`. Source URLs, titles, publication dates where available, retrieval times, and relevance scores are retained in the response.
 
-The application follows a client-server architecture. A FastAPI service provides health and analysis endpoints, loads the production model artifact, coordinates the evidence pipeline, and returns structured JSON. The presentation layer is designed with Next.js, React, and TypeScript, although implementation during this stage concentrated on the machine-learning and API layers. Deployment-specific values such as API addresses, CORS origins, model paths, artifact URLs, search credentials, recency limits, and timeouts are supplied through environment variables.
+The application follows a client-server architecture. A FastAPI service provides health and analysis endpoints, loads the selected production model artifact, coordinates the evidence pipeline, and returns structured JSON. The Next.js, React, and TypeScript presentation layer provides a responsive article workspace, separate prediction and evidence views, loading and error states, a disclaimer, and mobile navigation. Deployment-specific values such as API addresses, CORS origins, model paths, artifact URLs, search credentials, recency limits, and timeouts are supplied through environment variables.
 
 The system is intended as a decision-support tool rather than an automatic judge of truth. Its outputs use the cautious labels `likely_fake` and `likely_real`, preserve a separate evidence assessment, and include a disclaimer. This design acknowledges that high performance on a benchmark dataset does not remove the risks of source bias, domain shift, incomplete retrieval, or misleading confidence.
 
@@ -20,10 +20,10 @@ This section presents the resources required to develop, run, and deploy the sys
 
 #### 4.2.1 Server-Side Requirements
 
-1. **Hosting environment:** A Python-compatible service capable of running an ASGI application. Render is the intended host for the FastAPI service.
+1. **Hosting environment:** A Python-compatible service capable of running an ASGI application. Render is configured as the host for the FastAPI service.
 2. **Python runtime:** Python 3.11 to 3.13, with Python 3.12 used during development.
 3. **Processor:** A modern multi-core CPU is sufficient for the classical production model. Transformer inference benefits from greater CPU capacity or GPU acceleration.
-4. **Memory:** At least 1 GB is advisable for the classical API, with additional memory required if DistilBERT is served directly.
+4. **Memory:** At least 1 GB is advisable for the classical API. Serving the PyTorch and DistilBERT stack directly requires substantially more memory; a 2 GB instance is a practical minimum for reliable transformer inference.
 5. **Storage:** Space is required for the application, locked dependencies, and the selected model artifact. The classical artifact is substantially smaller than the DistilBERT directory, whose weights alone are approximately 268 MB.
 6. **Internet connectivity:** Outbound network access is required when the evidence pipeline uses a live search provider and fetches public pages. It is also required when a versioned model artifact is downloaded during deployment.
 7. **Environment configuration:** The server must receive values for the runtime environment, model path, allowed CORS origins, and any configured search-provider credentials. Secrets must not be committed to the repository.
@@ -34,7 +34,7 @@ This section presents the resources required to develop, run, and deploy the sys
 1. **Device:** A desktop computer, laptop, tablet, or smartphone capable of running a modern browser.
 2. **Browser:** A current version of Chrome, Firefox, Edge, Safari, or another standards-compliant browser with JavaScript enabled.
 3. **Internet connection:** A stable connection is required to submit the article and receive the combined analysis response.
-4. **Text input:** The user must provide non-empty article text. The implemented request schema accepts between 1 and 20,000 characters.
+4. **Text input:** The user must provide article text containing between 100 and 20,000 non-whitespace characters by default. These limits are deployment-configurable.
 5. **Display:** The interface should have enough space to distinguish the model prediction, confidence, claim assessments, evidence passages, sources, dates, and disclaimer without merging them into one verdict.
 
 No microphone, camera, biometric device, or browser extension is required because the system analyses text.
@@ -50,8 +50,8 @@ No microphone, camera, biometric device, or browser extension is required becaus
 7. **Visualisation:** Matplotlib and Seaborn generate confusion matrices and confidence-distribution plots.
 8. **Testing and quality checks:** Pytest provides unit and integration testing, while Ruff supports static analysis and formatting checks.
 9. **Dependency management:** Project dependencies are declared in `pyproject.toml`, resolved in `uv.lock`, and installed through `uv`.
-10. **Frontend technologies:** Next.js, React, TypeScript, HTML, and CSS form the intended presentation layer.
-11. **Version control and deployment:** Git and GitHub manage source history and versioned releases. Render is intended for the API and Vercel for the web client.
+10. **Frontend technologies:** Next.js, React, TypeScript, HTML, and CSS provide the responsive browser client and its article-analysis interface.
+11. **Version control and deployment:** Git and GitHub manage source history and versioned releases, including the transformer release artifact. Render hosts the API configuration and Vercel deploys the web client.
 
 ### 4.3 System Design
 
@@ -87,11 +87,11 @@ The flowchart provides a simplified view of the runtime decisions made by the an
 
 *Figure 4.3: Runtime flowchart for automated news analysis*
 
-When the classical artifact is available, the inference service returns the label, confidence, model identity, model version, processing time, and disclaimer. If it is unavailable, the prediction object reports that state without inventing a label. In the evidence branch, successful retrieval can lead to supported, contradicted, or mixed assessments; weak or missing evidence leads to insufficient evidence. The final response assembles both branches with the extracted claims and source provenance.
+When the selected production artifact is available, the inference service returns the label, confidence, model identity, model version, processing time, and disclaimer. The selected predictor may be the classical TF-IDF/Logistic Regression pipeline or the fine-tuned DistilBERT classifier. If the selected artifact is unavailable, the prediction object reports that state without inventing a label. In the evidence branch, successful retrieval can lead to supported, contradicted, or mixed assessments; weak or missing evidence leads to insufficient evidence. The final response assembles both branches with the extracted claims and source provenance.
 
 ### 4.4 System Design Output/Result
 
-The implemented outputs are currently exposed through the FastAPI service and the reproducible evaluation reports. The complete browser interface is not presented as a finished result at this stage. Consequently, this section reports the observable API and machine-learning outputs rather than using illustrative interface screenshots that the implemented system does not yet produce.
+The implemented outputs are exposed through the FastAPI service, reproducible evaluation reports, and the browser interface. The responsive web client accepts article text, displays the model estimate and confidence separately from the current-source evidence assessment, links evidence sources, and presents a cautionary disclaimer. Consequently, this section reports the observable API, machine-learning, and browser-client outputs.
 
 #### (i) API Health and Article-Analysis Output
 
@@ -195,9 +195,9 @@ The implementation avoids embedding deployment-specific values in source code. P
 
 #### 4.5.1 System Architecture
 
-The runtime architecture consists of a browser client, a FastAPI service, an inference service, a verification pipeline, a model artifact, and an external search provider. The browser sends article text to the API. FastAPI validates the request and obtains the inference and verification components through dependency injection. The inference service loads the saved classical model and returns a prediction. The verification pipeline extracts claims, searches for evidence, fetches bounded page content, ranks passages, and aggregates claim assessments. The route serialises both results into one response.
+The runtime architecture consists of a browser client, a FastAPI service, an inference service, a verification pipeline, a selected model artifact, and an external search provider. The browser sends article text to the API. FastAPI validates the request and obtains the inference and verification components through dependency injection. The inference service loads either the saved classical model or the fine-tuned DistilBERT artifact according to `PRODUCTION_MODEL` and returns a prediction. The verification pipeline extracts claims, searches for evidence through the configured Brave Search provider, fetches bounded public page content, ranks passages, and aggregates claim assessments. The route serialises both results into one response.
 
-The production API currently uses the classical predictor because its small artifact and CPU-friendly inference are better suited to constrained hosting. The transformer has been trained and evaluated offline but is not yet connected to the production analysis route. This distinction prevents an offline experiment from being described as a deployed capability.
+The production API supports model selection through `PRODUCTION_MODEL`. The Render deployment configuration selects the versioned DistilBERT release artifact, while the classical predictor remains available for lower-resource deployments. The transformer artifact is downloaded and verified with a SHA-256 checksum during deployment, allowing the deployed model to remain traceable to a versioned GitHub Release.
 
 The API is stateless and does not store submitted articles. Cross-origin browser access is limited by `CORS_ORIGINS`. A health endpoint supports deployment monitoring, and missing artifacts or insufficient evidence are represented as controlled response states rather than server crashes or fabricated conclusions.
 
@@ -240,14 +240,14 @@ Processed CSV files and raw datasets are kept outside normal source-control hist
 
 FastAPI creates the application, registers the routers, loads settings, and configures CORS from environment variables. Pydantic schemas enforce the request and response structures. `GET /health` exposes deployment-safe status information, while `POST /api/v1/analyze` coordinates the classifier and evidence pipeline. FastAPI's generated OpenAPI documentation also provides an interactive means of examining the endpoints during development.
 
-The Next.js project contains the foundation for the browser client, including a shared layout, a basic page, TypeScript configuration, and an environment-aware API URL helper. `NEXT_PUBLIC_API_URL` identifies the deployed API without hard-coding localhost or Render addresses. The complete article form and result presentation remain to be implemented after the ML and API behaviour has been finalised. Accordingly, this chapter does not present unfinished mock-ups as completed interfaces.
+The Next.js project provides the completed browser client, including a shared layout, responsive styling, sticky navigation, a mobile hamburger menu, an article form, client-side length checks, loading and network-error states, and a structured result presentation. `NEXT_PUBLIC_API_URL` identifies the deployed API without hard-coding localhost or Render addresses. The result view presents the model label and confidence separately from claim-level evidence statuses, passages, source links, dates where available, and the decision-support disclaimer.
 
-The intended result view will keep classification and verification visually separate. It will display the predicted class and confidence, followed by claim-level evidence statuses, relevant passages, source links, and available dates. Loading, validation, network failure, missing-model, and insufficient-evidence states will require distinct messages so users are not given a false sense of certainty.
+The implemented result view keeps classification and verification visually separate. It displays the predicted class and confidence, followed by claim-level evidence statuses, relevant source links, and available dates. Loading, validation, network failure, missing-model, and insufficient-evidence states use distinct messages so users are not given a false sense of certainty.
 
 #### 4.5.6 Integration and Workflow
 
-The integrated workflow begins when article text reaches the analysis endpoint. Pydantic validates the request before the route calls the verification pipeline and inference service. The verification pipeline extracts a bounded number of claims, constructs queries, obtains search results through a provider-neutral client, applies source rules, retrieves bounded page content, ranks documents, extracts relevant passages, and aggregates the claim-level findings. The inference service independently loads the classical artifact and predicts a label and confidence.
+The integrated workflow begins when article text reaches the analysis endpoint. Pydantic validates the request before the route calls the verification pipeline and inference service. The verification pipeline extracts a bounded number of claims, constructs queries, obtains search results through the configured Brave Search client, applies source rules, retrieves bounded public page content, ranks documents, extracts relevant passages, and aggregates the claim-level findings. The inference service independently loads the selected classical or transformer artifact and predicts a label and confidence.
 
 The route converts internal objects into a stable public schema and returns the two branches together. If one page fails, other evidence candidates can still be processed. If the search provider is not configured or no reliable evidence is found, the result becomes `insufficient`. If the model artifact is missing, `prediction.available` becomes `false` and an explanatory error is returned while the evidence branch remains usable.
 
-Unit tests cover data loading, label mapping, duplicate removal, splitting, preprocessing, classical prediction, transformer tokenisation, evaluation metrics, claim extraction, query construction, source filtering, evidence extraction, model download, configuration, and verification rules. Integration tests follow requests through FastAPI, dependency injection, prediction, evidence assessment, and response serialisation. This layered testing makes it possible to identify whether a failure originates in an individual rule, a persisted artifact, an external-service adapter, or the connected API workflow.
+Unit tests cover data loading, label mapping, duplicate removal, splitting, preprocessing, classical prediction, transformer tokenisation, evaluation metrics, claim extraction, query construction, Brave Search response handling, source filtering, evidence extraction, model download, configuration, and verification rules. Frontend tests cover the article form and responsive navigation. Integration tests follow requests through FastAPI, dependency injection, prediction, evidence assessment, and response serialisation. This layered testing makes it possible to identify whether a failure originates in an individual rule, a persisted artifact, an external-service adapter, the browser client, or the connected API workflow.
