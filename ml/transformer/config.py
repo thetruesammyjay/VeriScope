@@ -21,7 +21,7 @@ class TransformerConfig:
     logging_steps: int = 50
     random_state: int = 42
     save_checkpoints: bool = False
-    model_version: str = "transformer-distilbert-0.1.0"
+    model_version: str = "transformer-distilbert-source-clean-0.2.0"
     artifact_path: Path = Path("models/transformer/model")
 
     @property

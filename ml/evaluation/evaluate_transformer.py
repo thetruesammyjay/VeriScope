@@ -12,6 +12,7 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from ml.data.validate import canonical_label, validate_dataset
+from ml.transformer.cleaning import clean_article_text
 
 from .metrics import EvaluationResult, evaluate_predictions, save_evaluation_report
 
@@ -32,33 +33,29 @@ def evaluate_transformer_csv(
         raise ValueError("batch_size must be at least 1")
     frame = pd.read_csv(test_csv)
     if text_column not in frame or label_column not in frame:
-        raise ValueError(
-            f"CSV must contain {text_column!r} and {label_column!r} columns"
-        )
+        raise ValueError(f"CSV must contain {text_column!r} and {label_column!r} columns")
     validate_dataset(frame)
 
     artifact_path = Path(artifact_path)
     tokenizer = AutoTokenizer.from_pretrained(artifact_path)
     model = AutoModelForSequenceClassification.from_pretrained(artifact_path)
-    resolved_device = torch.device(
-        device or ("cuda" if torch.cuda.is_available() else "cpu")
-    )
+    resolved_device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
     model.to(resolved_device).eval()
     id_to_label = {
-        int(index): canonical_label(label)
-        for index, label in model.config.id2label.items()
+        int(index): canonical_label(label) for index, label in model.config.id2label.items()
     }
     metadata_path = artifact_path / "metadata.json"
     metadata: dict[str, Any] = (
-        json.loads(metadata_path.read_text(encoding="utf-8"))
-        if metadata_path.exists()
-        else {}
+        json.loads(metadata_path.read_text(encoding="utf-8")) if metadata_path.exists() else {}
     )
+    strip_agency_markers = metadata.get("text_preprocessing") == "strip_boundary_agency_markers_v1"
 
     predicted: list[str] = []
     confidence: list[float] = []
     positive_probabilities: list[float] = []
     texts = frame[text_column].astype(str).tolist()
+    if strip_agency_markers:
+        texts = [clean_article_text(text) for text in texts]
     resolved_max_length = max_length or int(metadata.get("max_length", 256))
     with torch.inference_mode():
         for start in range(0, len(texts), batch_size):
@@ -69,10 +66,10 @@ def evaluate_transformer_csv(
                 truncation=True,
                 max_length=resolved_max_length,
             )
-            encoded = {
-                key: value.to(resolved_device) for key, value in encoded.items()
-            }
-            probabilities = torch.softmax(model(**encoded).logits, dim=-1)
+            encoded = {key: value.to(resolved_device) for key, value in encoded.items()}
+            logits = model(**encoded).logits
+            temperature = float(metadata.get("calibration", {}).get("temperature", 1.0))
+            probabilities = torch.softmax(logits / temperature, dim=-1)
             values, indices = torch.max(probabilities, dim=-1)
             predicted.extend(id_to_label[int(index)] for index in indices.cpu().tolist())
             confidence.extend(float(value) for value in values.cpu().tolist())
@@ -95,15 +92,9 @@ def evaluate_transformer_csv(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--test-csv", type=Path, default=Path("datasets/processed/test.csv")
-    )
-    parser.add_argument(
-        "--artifact-path", type=Path, required=True
-    )
-    parser.add_argument(
-        "--output-dir", type=Path, default=Path("reports/metrics/transformer")
-    )
+    parser.add_argument("--test-csv", type=Path, default=Path("datasets/processed/test.csv"))
+    parser.add_argument("--artifact-path", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, default=Path("reports/metrics/transformer"))
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--max-length", type=int)
     parser.add_argument("--device")

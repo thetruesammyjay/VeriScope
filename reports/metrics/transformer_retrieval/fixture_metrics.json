@@ -1,0 +1,108 @@
+{
+  "evaluation_type": "small_hand_labelled_retrieval_diagnostic",
+  "sample_count": 5,
+  "selection_standard": {
+    "minimum_distinct_term_overlap": 2,
+    "minimum_claim_term_relevance": 0.25,
+    "one_passage_per_canonical_url": true
+  },
+  "summary": {
+    "claim_coverage": 1.0,
+    "evidence_precision_at_k": 1.0,
+    "evidence_recall_at_k": 1.0,
+    "source_diversity": 1.0
+  },
+  "cases": [
+    {
+      "id": "nasa-perseverance-landing",
+      "claim": "NASA's Perseverance rover landed on Mars on February 18, 2021.",
+      "relevant_urls": [
+        "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+        "https://parkingday.org/what-nasa-spacecraft-just-landed-on-mars/"
+      ],
+      "retrieved_urls": [
+        "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+        "https://parkingday.org/what-nasa-spacecraft-just-landed-on-mars/"
+      ],
+      "metrics": {
+        "claim_coverage": 1.0,
+        "evidence_precision_at_k": 1.0,
+        "evidence_recall_at_k": 1.0,
+        "source_diversity": 1.0,
+        "relevant_sources_retrieved": 2.0
+      }
+    },
+    {
+      "id": "nasa-jezero-ancient-life",
+      "claim": "Scientists selected Jezero Crater because it may preserve evidence of ancient microbial life.",
+      "relevant_urls": [
+        "https://science.nasa.gov/resource/perseverances-landing-spot-in-jezero-crater/",
+        "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/"
+      ],
+      "retrieved_urls": [
+        "https://science.nasa.gov/resource/perseverances-landing-spot-in-jezero-crater/",
+        "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/"
+      ],
+      "metrics": {
+        "claim_coverage": 1.0,
+        "evidence_precision_at_k": 1.0,
+        "evidence_recall_at_k": 1.0,
+        "source_diversity": 1.0,
+        "relevant_sources_retrieved": 2.0
+      }
+    },
+    {
+      "id": "who-pandemic-date",
+      "claim": "The World Health Organization characterized COVID-19 as a pandemic on March 11, 2020.",
+      "relevant_urls": [
+        "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"
+      ],
+      "retrieved_urls": [
+        "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"
+      ],
+      "metrics": {
+        "claim_coverage": 1.0,
+        "evidence_precision_at_k": 1.0,
+        "evidence_recall_at_k": 1.0,
+        "source_diversity": 1.0,
+        "relevant_sources_retrieved": 1.0
+      }
+    },
+    {
+      "id": "nbs-june-2024-inflation",
+      "claim": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 34.19 percent for June 2024.",
+      "relevant_urls": [
+        "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+      ],
+      "retrieved_urls": [
+        "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+      ],
+      "metrics": {
+        "claim_coverage": 1.0,
+        "evidence_precision_at_k": 1.0,
+        "evidence_recall_at_k": 1.0,
+        "source_diversity": 1.0,
+        "relevant_sources_retrieved": 1.0
+      }
+    },
+    {
+      "id": "nbs-cpi-publishing",
+      "claim": "Nigeria's National Bureau of Statistics publishes consumer price index reports.",
+      "relevant_urls": [
+        "https://microdata.nigerianstat.gov.ng/index.php/catalog/154",
+        "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+      ],
+      "retrieved_urls": [
+        "https://microdata.nigerianstat.gov.ng/index.php/catalog/154",
+        "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+      ],
+      "metrics": {
+        "claim_coverage": 1.0,
+        "evidence_precision_at_k": 1.0,
+        "evidence_recall_at_k": 1.0,
+        "source_diversity": 1.0,
+        "relevant_sources_retrieved": 2.0
+      }
+    }
+  ]
+}

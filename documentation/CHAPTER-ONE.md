@@ -89,7 +89,21 @@ For Nigerian academic and social contexts, the study contributes a practical dis
 
 Finally, the study contributes to responsible AI practice by avoiding absolute claims. It distinguishes statistical classification from factual verification, records known limitations, discourages automated censorship, and requires human judgement for consequential decisions.
 
-## 1.6 Definition of Terms
+## 1.6 Limitations of the Study
+
+The findings of this study are limited by the datasets used to develop and evaluate the classification models. The ISOT Fake News Dataset is the primary labelled dataset, and its articles represent a particular set of publishers, topics, periods, and editorial styles. The labels in the dataset are treated as the classification targets; they do not provide an independent measure of the factual accuracy of every sentence. The models may therefore learn associations between writing style or source markers and dataset labels instead of general features of misinformation. A source-style diagnostic conducted during development showed that the DistilBERT model's prediction on an accurate NASA example changed when a wire-service dateline was added. This result indicates sensitivity to style cues and reinforces that the reported ISOT scores should not be interpreted as proof of real-world accuracy.
+
+The evaluation is primarily in-distribution. The study does not include a large, independently collected Nigerian news dataset or a full cross-dataset benchmark. A small hand-labelled challenge set is used for diagnostic error analysis, but it is not large or representative enough to establish general performance across publishers, regions, topics, or time periods. Consequently, the results may not transfer to local Nigerian reporting, newer events, different editorial conventions, or articles outside the training distribution. Changes in the vocabulary and style of news over time may further reduce performance.
+
+The classification component analyses article text and estimates whether its patterns resemble examples labelled real or fake in the training data. It does not independently verify the truth of claims. Its confidence score is a model output and must not be read as the probability that an article is factually correct. The models can produce both false positives and false negatives, including confident errors. The system is therefore unsuitable as the sole basis for decisions that could affect a person's reputation, access to information, employment, or other important interests.
+
+Evidence retrieval is also constrained. The Transformer workflow ranks retrieved material using lexical relevance and presents passages with overlap to a claim; it does not currently use a trained natural-language-inference component to determine whether each passage entails or contradicts that claim. Search depends on the configured provider, its index and limits, page accessibility, and the wording of the extracted claim. Relevant information may be missed, while a retrieved page may mention the same terms without addressing the claim. Source labels and ranking preferences do not guarantee that a source is accurate, independent, or authoritative. Retrieval results are consequently advisory and require direct human review.
+
+The analysis is bounded by the number of claims and sources processed and by the amount of text accepted by the application. It focuses on English-language article text and publicly accessible web pages. It does not analyse images, video, audio, private messages, social-network propagation, author intent, or the provenance of a document. It is not a general web crawler and cannot guarantee coverage of every relevant source or event.
+
+Finally, the implementation is a research prototype rather than a large-scale field deployment. Automated software tests assess important pipeline, API, and interface behaviours, but they do not replace a broad user study, a comprehensive fairness audit, or long-term monitoring in operational settings. The study demonstrates a technical workflow for classification and evidence retrieval; it does not establish that the system reduces the spread or impact of misinformation.
+
+## 1.7 Definition of Terms
 
 **Accuracy:** The proportion of all evaluated examples that a model classifies correctly.
 

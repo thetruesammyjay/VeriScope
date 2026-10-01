@@ -8,7 +8,9 @@ from typing import Literal
 from .claim_extractor import Claim
 from .evidence_extractor import EvidencePassage
 
-EvidenceStatus = Literal["supported", "contradicted", "mixed", "insufficient"]
+EvidenceStatus = Literal[
+    "supported", "contradicted", "mixed", "insufficient", "sources_found"
+]
 
 
 @dataclass(frozen=True)

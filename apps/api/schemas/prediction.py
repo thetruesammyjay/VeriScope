@@ -11,6 +11,7 @@ class PredictionResponse(BaseModel):
     available: bool
     label: Literal["likely_real", "likely_fake"] | None = None
     confidence: float | None = Field(default=None, ge=0, le=1)
+    confidence_method: Literal["raw_softmax", "temperature_scaled"] | None = None
     model: str | None = None
     model_version: str | None = None
     processing_time_ms: float | None = Field(default=None, ge=0)

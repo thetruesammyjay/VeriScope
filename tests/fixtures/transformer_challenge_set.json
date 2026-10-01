@@ -1,0 +1,48 @@
+{
+  "description": "Small, hand-written factuality challenge set for diagnostic error and confidence review. It is not a held-out ISOT sample and must not be reported as a representative model benchmark.",
+  "label_basis": "likely_real denotes a factually accurate article-style sample; likely_fake denotes a fabricated factual assertion. These labels test factuality generalisation and are not equivalent to the ISOT publisher/style label in every case.",
+  "cases": [
+    {
+      "id": "nasa-perseverance-true",
+      "label": "likely_real",
+      "text": "NASA's Perseverance rover landed on Mars in February 2021. The rover is exploring Jezero Crater, a site scientists selected because it may preserve evidence of ancient microbial life. NASA says the mission is collecting rock and soil samples for possible return to Earth in a future campaign.",
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+      "notes": "Known-true sample used in the local demonstration; the user observed a likely_fake prediction at 99% confidence."
+    },
+    {
+      "id": "nasa-perseverance-false-date",
+      "label": "likely_fake",
+      "text": "NASA's Perseverance rover landed on Mars in February 2019. The mission began collecting Martian samples for return to Earth before it reached Jezero Crater.",
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+      "notes": "The official NASA/JPL landing report dates touchdown to February 18, 2021."
+    },
+    {
+      "id": "nbs-june-2024-true",
+      "label": "likely_real",
+      "text": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 34.19 percent for June 2024. The monthly CPI release compares the result with earlier reporting periods.",
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+      "notes": "The NBS June 2024 CPI and Inflation Report gives the headline rate as 34.19 percent."
+    },
+    {
+      "id": "nbs-june-2024-false-rate",
+      "label": "likely_fake",
+      "text": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 3.14 percent for June 2024. The figure was confirmed in its monthly CPI release.",
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+      "notes": "The cited NBS report gives 34.19 percent, not 3.14 percent."
+    },
+    {
+      "id": "who-pandemic-true",
+      "label": "likely_real",
+      "text": "On March 11, 2020, the World Health Organization said COVID-19 could be characterized as a pandemic. The organization also said that this description did not change its assessment of the threat.",
+      "reference_url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+      "notes": "WHO Director-General's dated briefing supports the year and characterization."
+    },
+    {
+      "id": "who-pandemic-false-date",
+      "label": "likely_fake",
+      "text": "The World Health Organization characterized COVID-19 as a pandemic on March 11, 2019. Its announcement came before the first reported cases of the disease.",
+      "reference_url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+      "notes": "The cited WHO briefing is dated March 11, 2020, not 2019."
+    }
+  ]
+}

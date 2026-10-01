@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-
+from ml.transformer.cleaning import clean_article_text
 from ml.transformer.config import TransformerConfig
 from ml.transformer.dataset import tokenize_frame
 from ml.transformer.train import compute_metrics
@@ -19,9 +19,7 @@ class DummyTokenizer:
 
 
 def test_tokenize_frame_maps_public_labels_to_model_ids() -> None:
-    frame = pd.DataFrame(
-        {"text": ["fake story", "real report"], "label": ["fake", "real"]}
-    )
+    frame = pd.DataFrame({"text": ["fake story", "real report"], "label": ["fake", "real"]})
     dataset = tokenize_frame(
         frame,
         DummyTokenizer(),
@@ -41,3 +39,13 @@ def test_compute_metrics_returns_macro_scores() -> None:
         "recall_macro": 1.0,
         "f1_macro": 1.0,
     }
+
+
+def test_clean_article_text_removes_only_boundary_agency_markers() -> None:
+    text = "WASHINGTON (Reuters) - Reuters reports that NASA landed the rover."
+
+    assert clean_article_text(text) == "Reuters reports that NASA landed the rover."
+    assert clean_article_text("A factual statement. (Reuters)") == "A factual statement."
+    assert (
+        clean_article_text("NASA reports: a mission update.") == "NASA reports: a mission update."
+    )

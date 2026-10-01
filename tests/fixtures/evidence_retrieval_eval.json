@@ -1,0 +1,131 @@
+{
+  "description": "Small, hand-labelled retrieval diagnostic set. Gold URLs were checked against primary-source pages; this fixture is not a live-search or truth-verification benchmark.",
+  "cases": [
+    {
+      "id": "nasa-perseverance-landing",
+      "claim": "NASA's Perseverance rover landed on Mars on February 18, 2021.",
+      "article_context": "NASA's Perseverance rover landed on Mars on February 18, 2021. The rover is exploring Jezero Crater.",
+      "sources": [
+        {
+          "url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+          "title": "Perseverance rover lands on Mars",
+          "text": "NASA confirmed that the Perseverance rover touched down on Mars on February 18, 2021, at Jezero Crater.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        },
+        {
+          "url": "https://parkingday.org/what-nasa-spacecraft-just-landed-on-mars/",
+          "title": "What NASA spacecraft just landed on Mars",
+          "text": "The Perseverance spacecraft landed on Mars in February 2021 and began exploring Jezero Crater.",
+          "relevant": true,
+          "source_classification": "unclassified"
+        },
+        {
+          "url": "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+          "title": "Inflation nowcasting",
+          "text": "The Cleveland Fed publishes estimates of United States inflation based on economic data.",
+          "relevant": false,
+          "source_classification": "unclassified"
+        }
+      ]
+    },
+    {
+      "id": "nasa-jezero-ancient-life",
+      "claim": "Scientists selected Jezero Crater because it may preserve evidence of ancient microbial life.",
+      "article_context": "NASA's Perseverance rover is exploring Jezero Crater. Scientists selected Jezero Crater because it may preserve evidence of ancient microbial life.",
+      "sources": [
+        {
+          "url": "https://science.nasa.gov/resource/perseverances-landing-spot-in-jezero-crater/",
+          "title": "Perseverance's landing spot in Jezero Crater",
+          "text": "NASA selected Jezero Crater for Perseverance. The mission searches for signs of ancient microbial life and studies the crater's geology and past climate.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        },
+        {
+          "url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+          "title": "Perseverance rover lands on Mars",
+          "text": "The rover landed at Jezero Crater. Its mission includes searching for signs of ancient microbial life.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        },
+        {
+          "url": "https://www.sciencedaily.com/news/space_time/mars/",
+          "title": "Mars news",
+          "text": "Recent discoveries concern Mars weather and observations from several robotic missions.",
+          "relevant": false,
+          "source_classification": "unclassified"
+        }
+      ]
+    },
+    {
+      "id": "who-pandemic-date",
+      "claim": "The World Health Organization characterized COVID-19 as a pandemic on March 11, 2020.",
+      "article_context": "The World Health Organization characterized COVID-19 as a pandemic on March 11, 2020.",
+      "sources": [
+        {
+          "url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+          "title": "WHO Director-General's opening remarks, 11 March 2020",
+          "text": "On March 11, 2020, the WHO Director-General said the organization assessed that COVID-19 could be characterized as a pandemic.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        },
+        {
+          "url": "https://www.nasa.gov/",
+          "title": "NASA",
+          "text": "NASA conducts space exploration and scientific research across the solar system.",
+          "relevant": false,
+          "source_classification": "unclassified"
+        }
+      ]
+    },
+    {
+      "id": "nbs-june-2024-inflation",
+      "claim": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 34.19 percent for June 2024.",
+      "article_context": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 34.19 percent for June 2024.",
+      "sources": [
+        {
+          "url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+          "title": "CPI and Inflation Report June 2024",
+          "text": "The National Bureau of Statistics reported that Nigeria's headline inflation rate in June 2024 was 34.19 percent.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        },
+        {
+          "url": "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+          "title": "Inflation nowcasting",
+          "text": "The Cleveland Fed provides United States inflation nowcasts using current economic indicators.",
+          "relevant": false,
+          "source_classification": "unclassified"
+        },
+        {
+          "url": "https://www.nerdwallet.com/finance/learn/inflation",
+          "title": "What is inflation?",
+          "text": "Inflation measures broad increases in the price of goods and services over time.",
+          "relevant": false,
+          "source_classification": "unclassified"
+        }
+      ]
+    },
+    {
+      "id": "nbs-cpi-publishing",
+      "claim": "Nigeria's National Bureau of Statistics publishes consumer price index reports.",
+      "article_context": "Nigeria's National Bureau of Statistics publishes consumer price index reports.",
+      "sources": [
+        {
+          "url": "https://microdata.nigerianstat.gov.ng/index.php/catalog/154",
+          "title": "Nigeria Consumer Price Index and Inflation catalogue",
+          "text": "The National Bureau of Statistics of Nigeria provides Consumer Price Index and inflation reports and tables in its data catalogue.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        },
+        {
+          "url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+          "title": "CPI and Inflation Report June 2024",
+          "text": "The National Bureau of Statistics published a June 2024 CPI and inflation report for Nigeria.",
+          "relevant": true,
+          "source_classification": "primary_official"
+        }
+      ]
+    }
+  ]
+}

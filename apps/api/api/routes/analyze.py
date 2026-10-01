@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-
 from apps.api.api.dependencies import get_inference_service, get_verification_pipeline
 from apps.api.core.config import Settings
 from apps.api.schemas.analysis import (
@@ -20,6 +18,7 @@ from apps.api.schemas.verification import (
     VerificationResponse,
 )
 from apps.api.services.inference_service import InferenceService
+from fastapi import APIRouter, Depends, HTTPException, Request
 from ml.verification.pipeline import VerificationPipeline
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
@@ -34,7 +33,7 @@ def analyze(
     ],
     inference: Annotated[InferenceService, Depends(get_inference_service)],
 ) -> AnalysisResponse:
-    """Return the classical prediction and current-source assessment."""
+    """Return a model prediction and the matching source-review workflow."""
 
     settings: Settings = http_request.app.state.settings
     try:
@@ -46,7 +45,14 @@ def analyze(
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
-    summary = pipeline.verify(article_text)
+    prediction = inference.predict(article_text)
+    transformer_retrieval = bool(
+        prediction and "transformer" in str(prediction.model).lower()
+    )
+    summary = pipeline.verify(
+        article_text,
+        transformer_retrieval=transformer_retrieval,
+    )
     claims = [
         ClaimAssessmentResponse(
             claim_id=assessment.claim.claim_id,
@@ -62,23 +68,26 @@ def analyze(
                     source_name=passage.source_name,
                     published_at=passage.published_at,
                     retrieved_at=passage.retrieved_at,
+                    source_classification=passage.source_classification,
                 )
                 for passage in assessment.evidence
             ],
         )
         for assessment in summary.assessments
     ]
-    prediction = inference.predict(article_text)
     if prediction is None:
         prediction_response = PredictionResponse(
             available=False,
-            error="Classical model artifact is not available. Train and deploy it first.",
+            error=(
+                "The selected model artifact is not available. Train or download it first."
+            ),
         )
     else:
         prediction_response = PredictionResponse(
             available=True,
             label=prediction.label,
             confidence=prediction.confidence,
+            confidence_method=getattr(prediction, "confidence_method", None),
             model=prediction.model,
             model_version=prediction.model_version,
             processing_time_ms=prediction.processing_time_ms,
@@ -86,7 +95,13 @@ def analyze(
         )
     return AnalysisResponse(
         prediction=prediction_response,
-        verification=VerificationResponse(status=summary.status, claims=claims),
+        verification=VerificationResponse(
+            status=summary.status,
+            claims=claims,
+            review_mode=(
+                "transformer_retrieval" if transformer_retrieval else "standard"
+            ),
+        ),
     )
 
 

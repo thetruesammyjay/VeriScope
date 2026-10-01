@@ -7,6 +7,9 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 EvidenceStatus = Literal["supported", "contradicted", "mixed", "insufficient"]
+TransformerReviewStatus = Literal[
+    "supported", "contradicted", "mixed", "insufficient", "sources_found"
+]
 
 
 class EvidencePassageResponse(BaseModel):
@@ -17,24 +20,27 @@ class EvidencePassageResponse(BaseModel):
     source_name: str | None = None
     published_at: str | None = None
     retrieved_at: str | None = None
+    source_classification: Literal["primary_official", "unclassified"] = "unclassified"
 
 
 class ClaimAssessmentResponse(BaseModel):
     claim_id: str
     claim: str
-    status: EvidenceStatus
+    status: TransformerReviewStatus
     evidence: list[EvidencePassageResponse] = Field(default_factory=list)
     rationale: str | None = None
 
 
 class VerificationResponse(BaseModel):
-    status: EvidenceStatus
+    status: TransformerReviewStatus
     claims: list[ClaimAssessmentResponse] = Field(default_factory=list)
+    review_mode: Literal["standard", "transformer_retrieval"] = "standard"
 
 
 __all__ = [
     "ClaimAssessmentResponse",
     "EvidencePassageResponse",
     "EvidenceStatus",
+    "TransformerReviewStatus",
     "VerificationResponse",
 ]

@@ -1,9 +1,10 @@
-from fastapi.testclient import TestClient
+from types import SimpleNamespace
 
 from apps.api.api.dependencies import get_inference_service, get_verification_pipeline
 from apps.api.core.config import Settings
 from apps.api.main import create_app
 from apps.api.services.inference_service import InferenceService
+from fastapi.testclient import TestClient
 from ml.classical.predict import ClassicalPredictor
 from ml.classical.train import train_model
 from ml.retrieval.search_client import InMemorySearchClient, SearchResult
@@ -43,6 +44,7 @@ def test_analyze_returns_fixture_based_evidence():
 
     assert response.status_code == 200
     assert response.json()["verification"]["status"] == "supported"
+    assert response.json()["verification"]["review_mode"] == "standard"
     assert response.json()["prediction"]["available"] is False
     assert response.json()["verification"]["claims"][0]["evidence"][0]["url"] == (
         "https://example.org/report"
@@ -69,7 +71,12 @@ def test_analyze_includes_classical_prediction_when_artifact_is_loaded():
     try:
         response = TestClient(app).post(
             "/api/v1/analyze",
-            json={"text": "The ministry issued a verified public announcement about the public health programme and the new community services available this month."},
+            json={
+                "text": (
+                    "The ministry issued a verified public announcement about the public "
+                    "health programme and the new community services available this month."
+                )
+            },
         )
     finally:
         app.dependency_overrides.clear()
@@ -77,6 +84,60 @@ def test_analyze_includes_classical_prediction_when_artifact_is_loaded():
     assert response.status_code == 200
     assert response.json()["prediction"]["available"] is True
     assert response.json()["prediction"]["label"] in {"likely_real", "likely_fake"}
+
+
+def test_transformer_prediction_uses_cautious_retrieval_response_only():
+    pipeline = VerificationPipeline(
+        search_client=InMemorySearchClient(
+            [
+                SearchResult(
+                    title="NASA Perseverance landing",
+                    url="https://www.jpl.nasa.gov/mars/perseverance",
+                    snippet=(
+                        "NASA's Perseverance rover landed on Mars on February 18, "
+                        "2021, at Jezero Crater."
+                    ),
+                )
+            ]
+        ),
+        max_claims=1,
+    )
+    predictor = SimpleNamespace(
+        predict=lambda text: SimpleNamespace(
+            label="likely_fake",
+            confidence=0.99,
+            model="transformer_sequence_classifier",
+            model_version="transformer-test",
+            processing_time_ms=5.0,
+            disclaimer="Text-pattern output is not a factual verdict.",
+        )
+    )
+    app = create_app()
+    app.dependency_overrides[get_verification_pipeline] = lambda: pipeline
+    app.dependency_overrides[get_inference_service] = lambda: InferenceService(predictor)
+
+    try:
+        response = TestClient(app).post(
+            "/api/v1/analyze",
+            json={
+                "text": (
+                    "NASA's Perseverance rover landed on Mars in February 2021. "
+                    "The mission continues to explore Jezero Crater and collect "
+                    "rock samples for possible study on Earth."
+                )
+            },
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    body = response.json()
+    assert response.status_code == 200
+    assert body["verification"]["review_mode"] == "transformer_retrieval"
+    assert body["verification"]["status"] == "sources_found"
+    assert body["verification"]["claims"][0]["status"] == "sources_found"
+    assert body["verification"]["claims"][0]["evidence"][0]["source_classification"] == (
+        "primary_official"
+    )
 
 
 def test_analyze_enforces_the_active_article_length_limits():

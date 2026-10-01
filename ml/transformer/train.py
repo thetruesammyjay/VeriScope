@@ -19,6 +19,7 @@ from transformers import (
     set_seed,
 )
 
+from .cleaning import clean_article_text
 from .config import TransformerConfig
 from .dataset import load_frame, tokenize_frame
 
@@ -33,18 +34,12 @@ def compute_metrics(eval_prediction: Any) -> dict[str, float]:
         "precision_macro": float(
             precision_score(labels, predictions, average="macro", zero_division=0)
         ),
-        "recall_macro": float(
-            recall_score(labels, predictions, average="macro", zero_division=0)
-        ),
-        "f1_macro": float(
-            f1_score(labels, predictions, average="macro", zero_division=0)
-        ),
+        "recall_macro": float(recall_score(labels, predictions, average="macro", zero_division=0)),
+        "f1_macro": float(f1_score(labels, predictions, average="macro", zero_division=0)),
     }
 
 
-def _training_arguments(
-    config: TransformerConfig, *, has_eval: bool
-) -> TrainingArguments:
+def _training_arguments(config: TransformerConfig, *, has_eval: bool) -> TrainingArguments:
     """Build version-compatible TrainingArguments."""
 
     values: dict[str, Any] = {
@@ -67,9 +62,7 @@ def _training_arguments(
         values["warmup_steps"] = 0
     if has_eval and config.save_checkpoints:
         values["save_strategy"] = "epoch"
-        evaluation_key = (
-            "eval_strategy" if "eval_strategy" in parameters else "evaluation_strategy"
-        )
+        evaluation_key = "eval_strategy" if "eval_strategy" in parameters else "evaluation_strategy"
         values[evaluation_key] = "epoch"
         values["load_best_model_at_end"] = True
         values["metric_for_best_model"] = "f1_macro"
@@ -91,14 +84,15 @@ def train_csv(
 
     resolved = config or TransformerConfig()
     set_seed(resolved.random_state)
-    train_frame = load_frame(
-        train_csv, text_column=text_column, label_column=label_column
-    )
+    train_frame = load_frame(train_csv, text_column=text_column, label_column=label_column)
+    train_frame["text"] = train_frame["text"].map(clean_article_text)
     eval_frame = (
         load_frame(validation_csv, text_column=text_column, label_column=label_column)
         if validation_csv
         else None
     )
+    if eval_frame is not None:
+        eval_frame["text"] = eval_frame["text"].map(clean_article_text)
     tokenizer = AutoTokenizer.from_pretrained(resolved.model_name)
     model = AutoModelForSequenceClassification.from_pretrained(
         resolved.model_name,
@@ -108,9 +102,7 @@ def train_csv(
     )
     train_dataset = tokenize_frame(train_frame, tokenizer, config=resolved)
     eval_dataset = (
-        tokenize_frame(eval_frame, tokenizer, config=resolved)
-        if eval_frame is not None
-        else None
+        tokenize_frame(eval_frame, tokenizer, config=resolved) if eval_frame is not None else None
     )
     trainer_values: dict[str, Any] = {
         "model": model,
@@ -134,6 +126,7 @@ def train_csv(
         "base_model": resolved.model_name,
         "label_mapping": resolved.label2id,
         "max_length": resolved.max_length,
+        "text_preprocessing": "strip_boundary_agency_markers_v1",
     }
     (resolved.artifact_path / "metadata.json").write_text(
         json.dumps(metadata, indent=2), encoding="utf-8"
@@ -147,10 +140,9 @@ def main() -> None:
     parser.add_argument("--validation-csv", type=Path)
     parser.add_argument("--model-name", default=TransformerConfig().model_name)
     parser.add_argument("--epochs", type=float, default=TransformerConfig().num_train_epochs)
+    parser.add_argument("--model-version", default=TransformerConfig().model_version)
     parser.add_argument("--save-checkpoints", action="store_true")
-    parser.add_argument(
-        "--artifact-path", type=Path, default=TransformerConfig().artifact_path
-    )
+    parser.add_argument("--artifact-path", type=Path, default=TransformerConfig().artifact_path)
     args = parser.parse_args()
     path = train_csv(
         args.train_csv,
@@ -159,6 +151,7 @@ def main() -> None:
             model_name=args.model_name,
             artifact_path=args.artifact_path,
             num_train_epochs=args.epochs,
+            model_version=args.model_version,
             save_checkpoints=args.save_checkpoints,
         ),
     )

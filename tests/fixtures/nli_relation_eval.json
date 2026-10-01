@@ -1,0 +1,47 @@
+{
+  "description": "Small, manually labelled NLI development fixture. Labels describe only the relation between the provided passage and claim.",
+  "cases": [
+    {
+      "id": "nasa-landing-entailment",
+      "passage": "NASA's Perseverance rover touched down on Mars on February 18, 2021.",
+      "claim": "NASA's Perseverance rover landed on Mars in February 2021.",
+      "relation": "entailment",
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/"
+    },
+    {
+      "id": "nasa-landing-contradiction",
+      "passage": "NASA's Perseverance rover touched down on Mars on February 18, 2021.",
+      "claim": "NASA's Perseverance rover landed on Mars in February 2019.",
+      "relation": "contradiction",
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/"
+    },
+    {
+      "id": "nasa-jezero-entailment",
+      "passage": "Scientists chose Jezero Crater because it may preserve evidence of ancient microbial life.",
+      "claim": "Jezero Crater was selected because it may preserve evidence of ancient microbial life.",
+      "relation": "entailment",
+      "reference_url": "https://science.nasa.gov/resource/perseverances-landing-spot-in-jezero-crater/"
+    },
+    {
+      "id": "nbs-inflation-entailment",
+      "passage": "Nigeria's headline inflation rate was 34.19 percent in June 2024, according to the National Bureau of Statistics.",
+      "claim": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 34.19 percent for June 2024.",
+      "relation": "entailment",
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+    },
+    {
+      "id": "nbs-inflation-contradiction",
+      "passage": "Nigeria's headline inflation rate was 34.19 percent in June 2024, according to the National Bureau of Statistics.",
+      "claim": "Nigeria's National Bureau of Statistics reported a headline inflation rate of 3.14 percent for June 2024.",
+      "relation": "contradiction",
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+    },
+    {
+      "id": "unrelated-neutral",
+      "passage": "Nigeria's statistics agency publishes a monthly consumer price index report.",
+      "claim": "The report was published on the first Tuesday of the month.",
+      "relation": "neutral",
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533"
+    }
+  ]
+}

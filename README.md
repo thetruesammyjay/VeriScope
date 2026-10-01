@@ -2,6 +2,8 @@
 
 **Automated Fake News Detection Using NLP and Transformer Models**
 
+> **Academic research project:** This repository contains the design and implementation for the study *Design and Implementation of a Fake News Detection and Evidence Retrieval System Using Natural Language Processing and Transformer Models*. It was built to support academic research and evaluation; it is a research prototype, not a definitive fact-checking service.
+
 VeriScope is a full-stack fake news detection system that compares a classical machine learning baseline against a fine-tuned transformer model to classify news articles as **likely real** or **likely fake** from their textual content.
 
 The project combines a **Next.js web application**, a **FastAPI backend**, and a modular **Python machine learning pipeline** for dataset preparation, model training, evaluation, and inference.
@@ -1087,16 +1089,57 @@ models/classical/
 ## Train the Transformer Model
 
 ```bash
-uv run python -m ml.transformer.train
+uv run python -m scripts.prepare_transformer_clean_data
+uv run python -m ml.transformer.train \
+  datasets/processed/transformer_source_clean/train.csv \
+  --validation-csv datasets/processed/transformer_source_clean/model_selection.csv \
+  --model-name distilbert-base-uncased \
+  --artifact-path models/transformer/shortcut_clean_distilbert \
+  --epochs 3 --save-checkpoints
+uv run python -m scripts.calibrate_transformer \
+  --artifact-path models/transformer/shortcut_clean_distilbert
 ```
 
-Checkpoints and final artifacts are written to:
+This Transformer-only path removes recognized agency datelines and source
+signatures at article boundaries. It preserves the original dataset and splits,
+and uses separate model-selection, calibration, and test subsets. Temperature
+scaling is fitted on the calibration subset and reported on the untouched test
+subset. The calibrated score remains an estimate of dataset-label patterns,
+not a probability that an article is factually true. A confidence-based
+abstention rule is not enabled until the project defines an acceptable error
+rate.
+
+The cleaned model artifact is written to:
 
 ```text
-models/transformer/
+models/transformer/shortcut_clean_distilbert/
 ```
 
-GPU acceleration is recommended for this stage.
+The Hugging Face base checkpoint must be available online or in the local
+cache. GPU acceleration is strongly recommended; CPU-only training can take a
+long time.
+
+The current ISOT files show strong source-style imbalance: Reuters appears in
+99.8% of the real-labelled corpus and 1.3% of the fake-labelled
+corpus. A paired NASA probe also flips from likely fake to likely real when a
+Reuters-style prefix is added. See
+`reports/experiments/transformer-shortcut-diagnostic.json`. These are evidence
+of source-style sensitivity, not causal proof or a cross-dataset benchmark. No
+second news dataset is currently present in the repository; the six-item
+hand-labelled challenge set is a useful sanity check, not a substitute for
+cross-dataset evaluation.
+
+An optional, non-production NLI relation experiment is available with a local
+or Hugging Face NLI checkpoint:
+
+```bash
+uv run python -m scripts.evaluate_nli_relations \
+  --model-path cross-encoder/nli-deberta-v3-small
+```
+
+It evaluates passage-to-claim entailment, contradiction, or neutrality on a
+small labelled fixture. NLI relation scores are not truth verification, and
+the experiment is not connected to the live result or evidence status.
 
 ---
 
@@ -1113,6 +1156,24 @@ The evaluation writes accuracy, macro and weighted precision, recall,
 F1-score, the confusion matrix, calibration metrics (ECE and Brier score),
 per-row predictions, and the confidence distribution to
 `reports/metrics/classical/`.
+
+The Transformer-selected API path uses a separate retrieval-quality flow. Its
+small hand-labelled source fixture can be evaluated with:
+
+```bash
+uv run python -m scripts.evaluate_retrieval_fixtures
+```
+
+To record DistilBERT predictions, errors, and confidence on the small
+hand-written factuality challenge set (including the NASA false positive), run:
+
+```bash
+uv run python -m scripts.evaluate_transformer_challenge \
+  --artifact-path models/transformer/distilbert
+```
+
+These diagnostic sets are deliberately small and are not substitutes for the
+held-out ISOT benchmark or a representative live-news evaluation.
 
 Outputs include:
 

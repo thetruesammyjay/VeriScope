@@ -2,12 +2,14 @@ export type EvidenceStatus =
   | "supported"
   | "contradicted"
   | "mixed"
-  | "insufficient";
+  | "insufficient"
+  | "sources_found";
 
 export interface Prediction {
   available: boolean;
   label?: "likely_real" | "likely_fake" | null;
   confidence?: number | null;
+  confidence_method?: "raw_softmax" | "temperature_scaled" | null;
   model?: string | null;
   model_version?: string | null;
   processing_time_ms?: number | null;
@@ -23,6 +25,7 @@ export interface EvidencePassage {
   source_name?: string | null;
   published_at?: string | null;
   retrieved_at?: string | null;
+  source_classification?: "primary_official" | "unclassified";
 }
 
 export interface ClaimAssessment {
@@ -38,5 +41,6 @@ export interface AnalysisResponse {
   verification: {
     status: EvidenceStatus;
     claims: ClaimAssessment[];
+    review_mode?: "standard" | "transformer_retrieval";
   };
 }

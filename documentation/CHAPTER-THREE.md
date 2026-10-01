@@ -148,18 +148,6 @@ The presentation layer is designed with **Next.js**, **React**, **TypeScript**, 
 
 Development is performed on Windows using PowerShell, Visual Studio Code, Git, GitHub, `uv`, and JupyterLab where exploration is appropriate. Draw.io-compatible XML and SVG files provide editable diagrams. Render is the intended API host and Vercel the intended web host. Environment variables configure CORS, model paths, artifact URLs and hashes, search credentials, recency windows, request limits, and timeouts; secrets and deployment-specific values are not embedded in source code.
 
-### 3.9 Limitations of the Combined Methodology to This Project
-
-1. Scrum is designed for collaborative teams, so some roles and meetings are simplified in an individual academic project.
-2. Short iterations can encourage scope growth when each experiment reveals another possible feature.
-3. MLDLC cannot correct unrepresentative labels or publisher bias already present in the source dataset.
-4. Random splitting may overestimate generalisation when articles share sources, topics, or time periods.
-5. Transformer experiments require substantial storage, memory, and computation; local CPU training makes repeated runs expensive.
-6. Current-source retrieval depends on search services, changing pages, publication dates, and source quality outside the researcher's control.
-7. The evidence verifier is a transparent lexical baseline, not a replacement for professional fact-checking or mature natural-language inference.
-8. Questionnaire requirements remain provisional until the instrument is administered and real responses are analysed.
-9. Deployment may differ from the local machine in cold-start time, memory, and network latency.
-10. Continuous monitoring and dataset refresh require work beyond the initial implementation period.
 
 ## REFERENCES
 

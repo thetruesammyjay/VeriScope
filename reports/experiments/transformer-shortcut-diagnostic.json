@@ -1,0 +1,65 @@
+{
+  "diagnostic": "source_style_shortcut_probe",
+  "warning": "Marker correlation and a paired probe indicate sensitivity, not causal proof or a generalization benchmark.",
+  "dataset": "ISOT",
+  "source_marker_rates_by_label": {
+    "likely_fake": {
+      "rows": 23481,
+      "marker_rates": {
+        "reuters": 0.013116988203228142,
+        "associated_press": 0.013713214939738512,
+        "afp": 0.0023423193220050253,
+        "wire_dateline_prefix": 4.258762403645501e-05
+      },
+      "mean_body_characters": 2547.396235254035
+    },
+    "likely_real": {
+      "rows": 21417,
+      "marker_rates": {
+        "reuters": 0.9981790166690012,
+        "associated_press": 0.004202269225381706,
+        "afp": 0.0002334594014100948,
+        "wire_dateline_prefix": 0.0011206051267684549
+      },
+      "mean_body_characters": 2383.278517065882
+    }
+  },
+  "paired_nasa_variants": [
+    {
+      "variant": "plain",
+      "predicted_label": "likely_fake",
+      "max_probability": 0.9909676909446716,
+      "likely_fake_probability": 0.9909676909446716
+    },
+    {
+      "variant": "reuters_dateline",
+      "predicted_label": "likely_real",
+      "max_probability": 0.9999867677688599,
+      "likely_fake_probability": 1.3267539543448947e-05
+    },
+    {
+      "variant": "reuters_parenthetical",
+      "predicted_label": "likely_real",
+      "max_probability": 0.9972187280654907,
+      "likely_fake_probability": 0.002781275426968932
+    },
+    {
+      "variant": "ap_dateline",
+      "predicted_label": "likely_real",
+      "max_probability": 0.9998737573623657,
+      "likely_fake_probability": 0.00012620170309673995
+    },
+    {
+      "variant": "nasa_agency_prefix",
+      "predicted_label": "likely_fake",
+      "max_probability": 0.9914940595626831,
+      "likely_fake_probability": 0.9914940595626831
+    },
+    {
+      "variant": "reuters_signature",
+      "predicted_label": "likely_fake",
+      "max_probability": 0.9104405641555786,
+      "likely_fake_probability": 0.9104405641555786
+    }
+  ]
+}

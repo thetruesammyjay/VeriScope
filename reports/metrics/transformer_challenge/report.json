@@ -1,0 +1,107 @@
+{
+  "evaluation_type": "small_hand_labelled_factuality_challenge",
+  "warning": "Diagnostic only: this small, hand-written set is not a held-out ISOT test set and is not representative of deployed news articles.",
+  "model": "transformer_sequence_classifier",
+  "model_version": "transformer-distilbert-0.1.0",
+  "sample_count": 6,
+  "accuracy": 0.3333333333333333,
+  "macro_f1": 0.3333333333333333,
+  "expected_calibration_error": 0.5950819551944733,
+  "mean_confidence": 0.9284152885278066,
+  "errors": [
+    {
+      "id": "nasa-perseverance-true",
+      "expected_label": "likely_real",
+      "predicted_label": "likely_fake",
+      "confidence": 0.9909676909446716,
+      "correct": false,
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+      "notes": "Known-true sample used in the local demonstration; the user observed a likely_fake prediction at 99% confidence."
+    },
+    {
+      "id": "nbs-june-2024-false-rate",
+      "expected_label": "likely_fake",
+      "predicted_label": "likely_real",
+      "confidence": 0.9972921013832092,
+      "correct": false,
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+      "notes": "The cited NBS report gives 34.19 percent, not 3.14 percent."
+    },
+    {
+      "id": "who-pandemic-true",
+      "expected_label": "likely_real",
+      "predicted_label": "likely_fake",
+      "confidence": 0.8082622289657593,
+      "correct": false,
+      "reference_url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+      "notes": "WHO Director-General's dated briefing supports the year and characterization."
+    },
+    {
+      "id": "who-pandemic-false-date",
+      "expected_label": "likely_fake",
+      "predicted_label": "likely_real",
+      "confidence": 0.8979660272598267,
+      "correct": false,
+      "reference_url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+      "notes": "The cited WHO briefing is dated March 11, 2020, not 2019."
+    }
+  ],
+  "predictions": [
+    {
+      "id": "nasa-perseverance-true",
+      "expected_label": "likely_real",
+      "predicted_label": "likely_fake",
+      "confidence": 0.9909676909446716,
+      "correct": false,
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+      "notes": "Known-true sample used in the local demonstration; the user observed a likely_fake prediction at 99% confidence."
+    },
+    {
+      "id": "nasa-perseverance-false-date",
+      "expected_label": "likely_fake",
+      "predicted_label": "likely_fake",
+      "confidence": 0.8799293637275696,
+      "correct": true,
+      "reference_url": "https://www.jpl.nasa.gov/news/touchdown-nasas-mars-perseverance-rover-safely-lands-on-red-planet/",
+      "notes": "The official NASA/JPL landing report dates touchdown to February 18, 2021."
+    },
+    {
+      "id": "nbs-june-2024-true",
+      "expected_label": "likely_real",
+      "predicted_label": "likely_real",
+      "confidence": 0.9960743188858032,
+      "correct": true,
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+      "notes": "The NBS June 2024 CPI and Inflation Report gives the headline rate as 34.19 percent."
+    },
+    {
+      "id": "nbs-june-2024-false-rate",
+      "expected_label": "likely_fake",
+      "predicted_label": "likely_real",
+      "confidence": 0.9972921013832092,
+      "correct": false,
+      "reference_url": "https://www.nigerianstat.gov.ng/elibrary/read/1241533",
+      "notes": "The cited NBS report gives 34.19 percent, not 3.14 percent."
+    },
+    {
+      "id": "who-pandemic-true",
+      "expected_label": "likely_real",
+      "predicted_label": "likely_fake",
+      "confidence": 0.8082622289657593,
+      "correct": false,
+      "reference_url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+      "notes": "WHO Director-General's dated briefing supports the year and characterization."
+    },
+    {
+      "id": "who-pandemic-false-date",
+      "expected_label": "likely_fake",
+      "predicted_label": "likely_real",
+      "confidence": 0.8979660272598267,
+      "correct": false,
+      "reference_url": "https://www.who.int/news-room/speeches/item/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020",
+      "notes": "The cited WHO briefing is dated March 11, 2020, not 2019."
+    }
+  ],
+  "dataset_description": "Small, hand-written factuality challenge set for diagnostic error and confidence review. It is not a held-out ISOT sample and must not be reported as a representative model benchmark.",
+  "label_basis": "likely_real denotes a factually accurate article-style sample; likely_fake denotes a fabricated factual assertion. These labels test factuality generalisation and are not equivalent to the ISOT publisher/style label in every case."
+}

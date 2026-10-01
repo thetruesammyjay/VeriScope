@@ -10,6 +10,7 @@ from ml.classical.predict import ClassicalPredictor
 from ml.inference.loader import load_artifact
 from ml.retrieval.document_fetcher import HttpDocumentFetcher
 from ml.retrieval.search_client import BraveSearchClient, EmptySearchClient, SearchClient
+from ml.retrieval.source_filter import SourcePolicy
 from ml.verification.pipeline import VerificationPipeline
 
 
@@ -30,6 +31,7 @@ def get_verification_pipeline() -> VerificationPipeline:
     settings = get_settings()
     return VerificationPipeline(
         search_client=build_search_client(settings),
+        source_policy=SourcePolicy(blocked_domains=("wikipedia.org",)),
         document_fetcher=HttpDocumentFetcher(
             timeout_seconds=settings.search_timeout_seconds,
         ),
