@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from apps.api.api.routes.analyze import router as analyze_router
+from apps.api.api.routes.ask import router as ask_router
 from apps.api.api.routes.health import router as health_router
 from apps.api.core.config import Settings, get_settings
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def create_app(app_settings: Settings | None = None) -> FastAPI:
@@ -34,6 +34,7 @@ def create_app(app_settings: Settings | None = None) -> FastAPI:
     # platform health check without depending on feature routes.
     application.include_router(health_router)
     application.include_router(analyze_router)
+    application.include_router(ask_router)
     return application
 
 

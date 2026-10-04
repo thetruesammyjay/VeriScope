@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" role="img" aria-labelledby="title desc">
+  <title id="title">Article analysis input and output flow</title>
+  <desc id="desc">The user enters article text, clicks the Analyse article button, the system analyses it, and displays the prediction and related source links.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#34342f"/>
+    </marker>
+    <style>
+      .heading { font: 700 24px Arial, sans-serif; fill: #171713; text-anchor: middle; }
+      .label { font: 700 19px Arial, sans-serif; fill: #171713; text-anchor: middle; }
+      .detail { font: 16px Arial, sans-serif; fill: #45453f; text-anchor: middle; }
+      .label-light { fill: #ffffff; }
+      .detail-light { fill: #f5f5ed; }
+      .flow { fill: none; stroke: #34342f; stroke-width: 2.5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1200" height="340" fill="#ffffff"/>
+  <text class="heading" x="600" y="42">Article Analysis: Input to Output</text>
+
+  <rect x="35" y="105" width="245" height="160" rx="18" fill="#f5f5ed" stroke="#b6b6a8" stroke-width="2"/>
+  <text class="label" x="157" y="150">1. Input</text>
+  <text class="detail" x="157" y="185"><tspan x="157">User enters article</tspan><tspan x="157" dy="24">text in the workspace</tspan></text>
+
+  <rect x="345" y="105" width="245" height="160" rx="18" fill="#c6ff4f" stroke="#171713" stroke-width="2"/>
+  <text class="label" x="467" y="150">2. User action</text>
+  <text class="detail" x="467" y="188"><tspan x="467">Clicks the</tspan><tspan x="467" dy="25" font-weight="700">“Analyse article”</tspan><tspan x="467" dy="25">button</tspan></text>
+
+  <rect x="655" y="105" width="245" height="160" rx="18" fill="#e9f3dc" stroke="#71944a" stroke-width="2"/>
+  <text class="label" x="777" y="150">3. Analysis</text>
+  <text class="detail" x="777" y="185"><tspan x="777">System analyses the text</tspan><tspan x="777" dy="24">and searches for sources</tspan></text>
+
+  <rect x="965" y="105" width="200" height="160" rx="18" fill="#30302b" stroke="#171713" stroke-width="2"/>
+  <text class="label label-light" x="1065" y="150">4. Output</text>
+  <text class="detail detail-light" x="1065" y="185"><tspan x="1065">Prediction and</tspan><tspan x="1065" dy="24">related source links</tspan></text>
+
+  <path class="flow" d="M280 185 H337"/>
+  <path class="flow" d="M590 185 H647"/>
+  <path class="flow" d="M900 185 H957"/>
+</svg>

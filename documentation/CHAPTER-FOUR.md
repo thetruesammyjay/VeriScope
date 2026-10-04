@@ -16,42 +16,14 @@ The system is intended as a decision-support tool rather than an automatic judge
 
 ### 4.2 System Requirements
 
-This section presents the resources required to develop, run, and deploy the system. The requirements are grouped into server-side, client-side, and software requirements because model inference and evidence retrieval take place on the API server, whereas users access the service through a browser-based client.
+The project can be developed and run locally on a modern laptop. The hardware requirements depend on the task: the web application, API, and classical classifier require fewer resources than loading or training DistilBERT.
 
-#### 4.2.1 Server-Side Requirements
+1. **Minimum practical capacity:** A 64-bit laptop with a multi-core processor, 8 GB of RAM, and at least 10 GB of free storage can run the web application, API, and classical model, and can support transformer inference with limited headroom.
+2. **Recommended capacity:** A quad-core or better processor, 16 GB of RAM, and at least 20 GB of free storage provide a more comfortable environment for running the API and web client together, handling the dataset, and loading the DistilBERT model.
+3. **Transformer training:** A dedicated GPU is not required, but it is recommended to reduce training time. The DistilBERT training run documented in this study took approximately 17.5 hours on a CPU; training on a laptop without a GPU may therefore be slow.
+4. **Internet access:** A connection is needed to install project dependencies, obtain model files when they are not already available locally, and use live search and public-source retrieval.
 
-1. **Hosting environment:** A Python-compatible service capable of running an ASGI application. Render is configured as the host for the FastAPI service.
-2. **Python runtime:** Python 3.11 to 3.13, with Python 3.12 used during development.
-3. **Processor:** A modern multi-core CPU is sufficient for the classical production model. Transformer inference benefits from greater CPU capacity or GPU acceleration.
-4. **Memory:** At least 1 GB is advisable for the classical API. Serving the PyTorch and DistilBERT stack directly requires substantially more memory; a 2 GB instance is a practical minimum for reliable transformer inference.
-5. **Storage:** Space is required for the application, locked dependencies, and the selected model artifact. The classical artifact is substantially smaller than the DistilBERT directory, whose weights alone are approximately 268 MB.
-6. **Internet connectivity:** Outbound network access is required when the evidence pipeline uses a live search provider and fetches public pages. It is also required when a versioned model artifact is downloaded during deployment.
-7. **Environment configuration:** The server must receive values for the runtime environment, model path, allowed CORS origins, and any configured search-provider credentials. Secrets must not be committed to the repository.
-8. **Transport security:** Production traffic should use HTTPS so submitted text, search credentials, and returned evidence are protected in transit.
-
-#### 4.2.2 Client-Side Requirements
-
-1. **Device:** A desktop computer, laptop, tablet, or smartphone capable of running a modern browser.
-2. **Browser:** A current version of Chrome, Firefox, Edge, Safari, or another standards-compliant browser with JavaScript enabled.
-3. **Internet connection:** A stable connection is required to submit the article and receive the combined analysis response.
-4. **Text input:** The user must provide article text containing between 100 and 20,000 non-whitespace characters by default. These limits are deployment-configurable.
-5. **Display:** The interface should have enough space to distinguish the model prediction, confidence, claim assessments, evidence passages, sources, dates, and disclaimer without merging them into one verdict.
-
-No microphone, camera, biometric device, or browser extension is required because the system analyses text.
-
-#### 4.2.3 Software Requirements
-
-1. **Programming languages:** Python is used for the API, data pipeline, model training, evaluation, retrieval, and verification. TypeScript supports the web client.
-2. **API framework:** FastAPI provides routing, dependency injection, schema validation, OpenAPI documentation, and response serialisation. Uvicorn runs the ASGI application.
-3. **Data libraries:** Pandas and NumPy support dataset preparation and numerical operations. PyArrow supports efficient dataset interchange where required.
-4. **Classical machine learning:** scikit-learn provides TF-IDF vectorisation, Logistic Regression, splitting utilities, and evaluation metrics. Joblib stores and reloads the fitted pipeline.
-5. **Transformer machine learning:** PyTorch, Hugging Face Transformers, Datasets, and Accelerate support tokenisation, DistilBERT fine-tuning, batched inference, and artifact storage.
-6. **Retrieval and verification:** HTTPX handles search and page requests. Custom Python modules perform claim extraction, query construction, source filtering, ranking, evidence extraction, and verification.
-7. **Visualisation:** Matplotlib and Seaborn generate confusion matrices and confidence-distribution plots.
-8. **Testing and quality checks:** Pytest provides unit and integration testing, while Ruff supports static analysis and formatting checks.
-9. **Dependency management:** Project dependencies are declared in `pyproject.toml`, resolved in `uv.lock`, and installed through `uv`.
-10. **Frontend technologies:** Next.js, React, TypeScript, HTML, and CSS provide the responsive browser client and its article-analysis interface.
-11. **Version control and deployment:** Git and GitHub manage source history and versioned releases, including the transformer release artifact. Render hosts the API configuration and Vercel deploys the web client.
+These figures are practical guidance rather than strict benchmarks. Available memory and storage should be checked before loading the transformer model or preparing the complete dataset, and other running applications can affect performance.
 
 ### 4.3 System Design
 
@@ -196,6 +168,10 @@ The implementation avoids embedding deployment-specific values in source code. P
 #### 4.5.1 System Architecture
 
 The runtime architecture consists of a browser client, a FastAPI service, an inference service, a verification pipeline, a selected model artifact, and an external search provider. The browser sends article text to the API. FastAPI validates the request and obtains the inference and verification components through dependency injection. The inference service loads either the saved classical model or the fine-tuned DistilBERT artifact according to `PRODUCTION_MODEL` and returns a prediction. The verification pipeline extracts claims, searches for evidence through the configured Brave Search provider, fetches bounded public page content, ranks passages, and aggregates claim assessments. The route serialises both results into one response.
+
+![Figure 4.8: Simple flow from article input to analysis output](figures/system-architecture.svg)
+
+*Figure 4.8: Simple flow from article input to analysis output*
 
 The production API supports model selection through `PRODUCTION_MODEL`. The Render deployment configuration selects the versioned DistilBERT release artifact, while the classical predictor remains available for lower-resource deployments. The transformer artifact is downloaded and verified with a SHA-256 checksum during deployment, allowing the deployed model to remain traceable to a versioned GitHub Release.
 

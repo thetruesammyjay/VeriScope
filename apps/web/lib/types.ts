@@ -43,4 +43,31 @@ export interface AnalysisResponse {
     claims: ClaimAssessment[];
     review_mode?: "standard" | "transformer_retrieval";
   };
+  explanation?: {
+    available: boolean;
+    text?: string | null;
+    model?: string | null;
+    error?: string | null;
+  };
+}
+
+export interface ClaimQuestionSource {
+  source_id: string;
+  title: string;
+  url: string;
+  excerpt: string;
+  relevance_score: number;
+  source_name?: string | null;
+  published_at?: string | null;
+  retrieved_at?: string | null;
+}
+
+export interface ClaimQuestionResponse {
+  status: "answered" | "insufficient_evidence" | "answer_unavailable";
+  answer?: string | null;
+  answer_engine?: string | null;
+  cited_source_ids: string[];
+  sources: ClaimQuestionSource[];
+  message: string;
+  caution: string;
 }

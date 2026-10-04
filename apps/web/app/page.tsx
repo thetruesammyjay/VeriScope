@@ -27,8 +27,8 @@ export default function HomePage() {
       <section className="analysis-section" id="analyse">
         <div className="section-intro">
           <p className="eyebrow">Put it under the scope</p>
-          <h2>One article. Two useful signals.</h2>
-          <p>VeriScope keeps pattern classification and evidence review separate, so a model estimate is never presented as a final verdict.</p>
+          <h2>Choose how to check a claim.</h2>
+          <p>Analyse a full article with separate model and source-review signals, or ask a focused news question and get a source-grounded response.</p>
         </div>
         <AnalysisForm />
       </section>

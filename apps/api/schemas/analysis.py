@@ -14,9 +14,19 @@ class AnalysisRequest(BaseModel):
     text: str = Field(min_length=1)
 
 
+class ExplanationResponse(BaseModel):
+    """Optional explanation kept separate from the trained prediction."""
+
+    available: bool = False
+    text: str | None = None
+    model: str | None = None
+    error: str | None = None
+
+
 class AnalysisResponse(BaseModel):
     prediction: PredictionResponse
     verification: VerificationResponse
+    explanation: ExplanationResponse = Field(default_factory=ExplanationResponse)
 
 
 def validate_article_text(
@@ -44,4 +54,9 @@ def validate_article_text(
     return text
 
 
-__all__ = ["AnalysisRequest", "AnalysisResponse", "validate_article_text"]
+__all__ = [
+    "AnalysisRequest",
+    "AnalysisResponse",
+    "ExplanationResponse",
+    "validate_article_text",
+]

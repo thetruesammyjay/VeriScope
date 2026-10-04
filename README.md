@@ -952,6 +952,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 # Comma-separated browser origins allowed to call the Render API.
 CORS_ORIGINS=http://localhost:3000
 
+# Optional server-side DeepSeek explanation; never expose with NEXT_PUBLIC_ prefix.
+DEEPSEEK_API_KEY=
+DEEPSEEK_MODEL=deepseek-flash
+DEEPSEEK_TIMEOUT_SECONDS=12
+DEEPSEEK_MAX_INPUT_CHARS=2500
+DEEPSEEK_MAX_OUTPUT_TOKENS=140
+
 # Current-source evidence retrieval
 SEARCH_PROVIDER=
 SEARCH_ENDPOINT=
@@ -972,7 +979,10 @@ production URLs in source code:
   URL.
 - **Render (`apps/api`)**: set `API_HOST=0.0.0.0` and `CORS_ORIGINS` to the
   deployed Vercel origin. Render supplies `PORT` automatically; the API maps
-  that value when `API_PORT` is not set.
+  that value when `API_PORT` is not set. Set `DEEPSEEK_API_KEY` as a secret to
+  enable the separate generated explanation. The explanation uses at most the
+  configured article excerpt and output-token limits; the DistilBERT prediction
+  and calibrated score remain the classifier result.
 
 To deploy the trained classical model without committing the binary to Git,
 upload `model.joblib` as a GitHub Release asset. Configure its public release

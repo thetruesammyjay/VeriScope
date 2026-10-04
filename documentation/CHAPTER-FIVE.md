@@ -22,16 +22,11 @@ The project objectives were addressed through data preparation, model developmen
 
 ## 5.3 Recommendations
 
-- Evaluate both classifiers on independent datasets and recent articles from publishers not represented in training, including Nigerian news sources. Report class-wise precision, recall, F1-score, confusion matrices, and calibration.
-- Check for duplicates, publisher overlap, topic cues, and time-period effects. Use publisher-held-out and time-based splits where possible to test whether models learn transferable patterns.
-- Reassess confidence on independent data and use calibration methods only if evaluation supports them. Describe confidence as confidence in the learned label, not the probability that a story is true.
-- Compare extracted claims, retrieved sources, and evidence assessments with human-annotated examples. Measure claim coverage, relevance, source diversity, freshness, retrieval failures, and agreement with reviewers.
-- Develop a responsibly collected and labelled Nigerian news dataset with documented sources, dates, topics, annotation guidance, and adjudication. Separate article-level labels from claim-level evidence judgements.
-- Keep the Brave API key in Render's secret environment configuration. Add tested request limits and a shared daily search budget before broad public use, and monitor provider usage.
-- Measure memory use, cold-start time, inference latency, and failure rates on the target host. Select hosting that meets measured requirements before relying on continuous public service.
-- Monitor API availability, errors, latency, model loading, and retrieval failures. Keep dependencies updated, restrict CORS to the deployed web origin, verify model artifacts with checksums, and maintain public-source fetching safeguards.
-- Complete the proposed questionnaire and structured usability sessions with intended users, such as readers, journalists, and fact-checkers. Document the protocol and participant characteristics.
-- Keep prediction and evidence results separate, provide source links and retrieval details, show insufficient evidence when appropriate, and do not use system output alone for consequential decisions about people or publishers.
+- Evaluate the classifiers on recent news from publishers outside the ISOT dataset, including Nigerian sources, to test performance beyond the training data.
+- Use publisher-based and time-based test splits to check whether the models rely on writing style or dataset-specific patterns.
+- Review the DistilBERT model's errors and confidence scores on held-out examples before interpreting its predictions.
+- Compare retrieved passages with human judgements to assess whether they are relevant to each claim; retain an “insufficient evidence” outcome when they are not.
+- Present the classifier estimate and retrieved-source assessment as separate results, and remind users that neither is conclusive proof of truth.
 
 ## 5.4 Contribution to Knowledge
 
@@ -43,10 +38,9 @@ The contribution is therefore both empirical and practical: an experimental comp
 
 ## 5.5 Future Work
 
-Future work should first evaluate the implemented system with independent, recent, and locally representative Nigerian news data. The dataset should include clear annotation rules and quality review, and the evaluation should test generalisation across publishers, topics, and time periods. Both the classical model and DistilBERT should be assessed under comparable conditions, including deployment cost, latency, model size, class-specific errors, and confidence calibration.
-
-The evidence workflow can be improved by using stronger claim extraction, query generation, source credibility and diversity policies, and natural-language inference methods for comparing evidence with claims. Human reviewers should annotate a representative sample so that retrieval relevance and evidence-status decisions can be measured rather than inferred from successful API responses. The system should also record when evidence could not be retrieved and distinguish this from evidence that contradicts a claim.
-
-Further engineering work should add tested per-user or per-IP request limits and a persistent, shared search-usage budget, along with monitoring for service availability, model loading, retrieval quality, latency, and provider consumption. Hosting should be reassessed using measured transformer memory and cold-start requirements. Additional research could investigate multilingual and non-textual misinformation, such as image and video claims, but these capabilities require their own datasets, methods, and evaluations before inclusion in the system.
-
-Finally, future studies should complete the planned questionnaire and carry out structured usability evaluation with intended users, including journalists and fact-checkers. Their feedback can guide improvements to the interface, evidence explanations, source context, and accessibility. Any extension should retain human review for consequential uses and should preserve the distinction between a model's text-pattern estimate and an evidence-based assessment.
+- **Nigerian news dataset:** Build and evaluate a labelled dataset covering local publishers, topics, and languages.
+- **Cross-publisher model evaluation:** Study how fake-news classifiers perform across different publishers and time periods.
+- **Semantic evidence verification:** Develop a system that classifies retrieved passages as supporting, contradicting, or unrelated to a claim.
+- **Multimodal misinformation detection:** Extend detection to claims that combine text with images or video.
+- **Conversational news research assistant:** Develop a question-answering interface that responds using retrieved articles and displays its sources.
+- **User-centred evaluation:** Study how readers, journalists, and fact-checkers interpret model estimates and source evidence.

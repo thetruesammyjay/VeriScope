@@ -1,14 +1,43 @@
 from types import SimpleNamespace
 
-from apps.api.api.dependencies import get_inference_service, get_verification_pipeline
+from apps.api.api.dependencies import (
+    get_claim_question_service,
+    get_deepseek_explainer,
+    get_inference_service,
+    get_verification_pipeline,
+)
 from apps.api.core.config import Settings
 from apps.api.main import create_app
+from apps.api.schemas.question import ClaimQuestionResponse
 from apps.api.services.inference_service import InferenceService
 from fastapi.testclient import TestClient
 from ml.classical.predict import ClassicalPredictor
 from ml.classical.train import train_model
 from ml.retrieval.search_client import InMemorySearchClient, SearchResult
 from ml.verification.pipeline import VerificationPipeline
+
+
+def test_claim_question_endpoint_is_separate_from_article_analysis():
+    class FakeClaimQuestionService:
+        def ask(self, question):
+            assert question == "Did this news event happen?"
+            return ClaimQuestionResponse(
+                status="insufficient_evidence",
+                message="The retrieved sources don't establish a clear answer.",
+            )
+
+    app = create_app()
+    app.dependency_overrides[get_claim_question_service] = lambda: FakeClaimQuestionService()
+    try:
+        client = TestClient(app)
+        response = client.post("/api/v1/ask", json={"question": "Did this news event happen?"})
+        short_response = client.post("/api/v1/ask", json={"question": "?"})
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "insufficient_evidence"
+    assert short_response.status_code == 422
 
 
 def test_analyze_returns_fixture_based_evidence():
@@ -25,6 +54,7 @@ def test_analyze_returns_fixture_based_evidence():
     )
     app = create_app()
     app.dependency_overrides[get_verification_pipeline] = lambda: pipeline
+    app.dependency_overrides[get_deepseek_explainer] = lambda: None
     # Keep this test independent of a locally downloaded production artifact.
     app.dependency_overrides[get_inference_service] = lambda: InferenceService()
 
@@ -64,6 +94,7 @@ def test_analyze_includes_classical_prediction_when_artifact_is_loaded():
     pipeline = VerificationPipeline(search_client=InMemorySearchClient([]))
     app = create_app()
     app.dependency_overrides[get_verification_pipeline] = lambda: pipeline
+    app.dependency_overrides[get_deepseek_explainer] = lambda: None
     app.dependency_overrides[get_inference_service] = lambda: InferenceService(
         ClassicalPredictor(artifact)
     )
@@ -106,6 +137,7 @@ def test_transformer_prediction_uses_cautious_retrieval_response_only():
         predict=lambda text: SimpleNamespace(
             label="likely_fake",
             confidence=0.99,
+            confidence_method="temperature_scaled",
             model="transformer_sequence_classifier",
             model_version="transformer-test",
             processing_time_ms=5.0,
@@ -114,6 +146,7 @@ def test_transformer_prediction_uses_cautious_retrieval_response_only():
     )
     app = create_app()
     app.dependency_overrides[get_verification_pipeline] = lambda: pipeline
+    app.dependency_overrides[get_deepseek_explainer] = lambda: _FakeExplainer()
     app.dependency_overrides[get_inference_service] = lambda: InferenceService(predictor)
 
     try:
@@ -138,6 +171,12 @@ def test_transformer_prediction_uses_cautious_retrieval_response_only():
     assert body["verification"]["claims"][0]["evidence"][0]["source_classification"] == (
         "primary_official"
     )
+    assert body["prediction"]["model"] == "transformer_sequence_classifier"
+    assert body["prediction"]["confidence"] == 0.99
+    assert body["prediction"]["confidence_method"] == "temperature_scaled"
+    assert body["explanation"]["available"] is True
+    assert body["explanation"]["model"] == "deepseek-flash"
+    assert "does not verify" in body["explanation"]["text"]
 
 
 def test_analyze_enforces_the_active_article_length_limits():
@@ -147,6 +186,7 @@ def test_analyze_enforces_the_active_article_length_limits():
         max_article_length=120,
     )
     app = create_app(settings)
+    app.dependency_overrides[get_deepseek_explainer] = lambda: None
     app.dependency_overrides[get_verification_pipeline] = lambda: VerificationPipeline(
         search_client=InMemorySearchClient([])
     )
@@ -169,3 +209,12 @@ def test_analyze_enforces_the_active_article_length_limits():
     assert long_response.status_code == 422
     assert long_response.json()["detail"] == "Article text must not exceed 120 characters."
     assert valid_response.status_code == 200
+
+
+class _FakeExplainer:
+    def explain(self, **kwargs):
+        del kwargs
+        return SimpleNamespace(
+            text="The score reflects learned text patterns; it does not verify the claims.",
+            model="deepseek-flash",
+        )

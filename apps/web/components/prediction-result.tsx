@@ -156,6 +156,23 @@ export function PredictionResult({ result }: { result: AnalysisResponse }) {
     />
   );
 
+  const explanationPanel = result.explanation ? (
+    <aside className="deepseek-explanation" aria-label="DeepSeek-generated explanation">
+      <div className="deepseek-explanation-heading">
+        <p className="eyebrow">Explanation</p>
+        {result.explanation.model && <small>{result.explanation.model}</small>}
+      </div>
+      <p>
+        {result.explanation.available
+          ? result.explanation.text
+          : result.explanation.error || "An explanation is not available."}
+      </p>
+      <small className="deepseek-explanation-caution">
+        Generated from a limited text excerpt and the analysis results. It is not the classifier’s internal reasoning or independent fact verification.
+      </small>
+    </aside>
+  ) : null;
+
   return (
     <section className="result-panel" aria-live="polite">
       <div className="result-heading">
@@ -171,10 +188,12 @@ export function PredictionResult({ result }: { result: AnalysisResponse }) {
         <>
           {evidenceReview}
           {predictionCard}
+          {explanationPanel}
         </>
       ) : (
         <>
           {predictionCard}
+          {explanationPanel}
           {evidenceReview}
         </>
       )}

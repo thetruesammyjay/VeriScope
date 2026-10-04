@@ -1,3 +1,5 @@
+import type { AnalysisResponse, ClaimQuestionResponse } from "./types";
+
 /**
  * Build an API URL from the deployment-provided base URL.
  *
@@ -62,4 +64,23 @@ export async function analyzeArticle(
 
   return response.json() as Promise<AnalysisResponse>;
 }
-import type { AnalysisResponse } from "./types";
+export async function askAboutClaim(
+  question: string,
+  signal?: AbortSignal,
+): Promise<ClaimQuestionResponse> {
+  const response = await fetch(apiUrl("/api/v1/ask"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      detail?: string;
+    } | null;
+    throw new Error(body?.detail || "The claim question could not be answered.");
+  }
+
+  return response.json() as Promise<ClaimQuestionResponse>;
+}

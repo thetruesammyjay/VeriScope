@@ -4,9 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 
 const navigation = [
-  { href: "#analyse", label: "Analyse" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#responsible-use", label: "Responsible use" },
+  { href: "/#analyse", label: "Analyse" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/about", label: "About" },
+  { href: "/methodology", label: "Methodology" },
+  { href: "/#responsible-use", label: "Responsible use" },
 ];
 
 export function SiteHeader() {
@@ -17,7 +19,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="header-inner">
-        <a className="brand" href="#top" aria-label="VeriScope home" onClick={closeMenu}>
+        <a className="brand" href="/" aria-label="VeriScope home" onClick={closeMenu}>
           <Image src="/VeriScope.png" alt="VeriScope" width={244} height={57} priority />
         </a>
 
@@ -27,7 +29,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <a className="header-cta" href="#analyse">Analyse an article <span aria-hidden="true">↗</span></a>
+        <a className="header-cta" href="/#analyse">Analyse an article <span aria-hidden="true">↗</span></a>
 
         <button
           className="menu-button"
@@ -46,7 +48,7 @@ export function SiteHeader() {
           {navigation.map((item) => (
             <a key={item.href} href={item.href} onClick={closeMenu}>{item.label}</a>
           ))}
-          <a className="mobile-nav-cta" href="#analyse" onClick={closeMenu}>Analyse an article <span aria-hidden="true">↗</span></a>
+          <a className="mobile-nav-cta" href="/#analyse" onClick={closeMenu}>Analyse an article <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
     </header>

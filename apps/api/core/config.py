@@ -68,14 +68,21 @@ class Settings(BaseSettings):
     evidence_max_claims: int = Field(default=5, ge=1, le=50)
     evidence_recency_days: int | None = Field(default=30, ge=0)
 
+    # DeepSeek provides a separate classifier explanation and bounded,
+    # source-grounded answers to the dedicated claim-question endpoint.
+    deepseek_api_key: SecretStr | None = None
+    deepseek_model: str = "deepseek-flash"
+    deepseek_timeout_seconds: float = Field(default=12.0, gt=0, le=60)
+    deepseek_max_input_chars: int = Field(default=2500, ge=100, le=6000)
+    deepseek_max_output_tokens: int = Field(default=140, ge=32, le=256)
+    deepseek_question_max_output_tokens: int = Field(default=300, ge=64, le=500)
+
     @property
     def cors_origin_list(self) -> list[str]:
         """Return normalized origins for FastAPI's CORS middleware."""
 
         return [
-            origin.strip().rstrip("/")
-            for origin in self.cors_origins.split(",")
-            if origin.strip()
+            origin.strip().rstrip("/") for origin in self.cors_origins.split(",") if origin.strip()
         ]
 
     @model_validator(mode="after")
@@ -83,9 +90,7 @@ class Settings(BaseSettings):
         """Reject invalid deployment configuration at startup."""
 
         if self.min_article_length > self.max_article_length:
-            raise ValueError(
-                "MIN_ARTICLE_LENGTH must not exceed MAX_ARTICLE_LENGTH"
-            )
+            raise ValueError("MIN_ARTICLE_LENGTH must not exceed MAX_ARTICLE_LENGTH")
         return self
 
 

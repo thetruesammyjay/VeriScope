@@ -6,6 +6,35 @@ import { PredictionResult } from "@/components/prediction-result";
 describe("PredictionResult", () => {
   afterEach(() => vi.restoreAllMocks());
 
+  it("shows a separate DeepSeek explanation without replacing the classifier score", () => {
+    render(
+      <PredictionResult
+        result={{
+          prediction: {
+            available: true,
+            label: "likely_real",
+            confidence: 0.91,
+            confidence_method: "temperature_scaled",
+            model: "transformer_distilbert",
+            disclaimer: "A prediction is not proof.",
+          },
+          verification: { status: "insufficient", claims: [] },
+          explanation: {
+            available: true,
+            model: "deepseek-flash",
+            text: "This score reflects learned language patterns, not proof of accuracy.",
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("91%")).toBeInTheDocument();
+    expect(screen.getByText("transformer distilbert")).toBeInTheDocument();
+    expect(screen.getByRole("complementary", { name: "DeepSeek-generated explanation" }))
+      .toHaveTextContent("deepseek-flash");
+    expect(screen.getByText(/not the classifier’s internal reasoning/)).toBeInTheDocument();
+  });
+
   it("renders repeated evidence URLs without duplicate React keys", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 

@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated
 
-from apps.api.api.dependencies import get_inference_service, get_verification_pipeline
+from apps.api.api.dependencies import (
+    get_deepseek_explainer,
+    get_inference_service,
+    get_verification_pipeline,
+)
 from apps.api.core.config import Settings
 from apps.api.schemas.analysis import (
     AnalysisRequest,
     AnalysisResponse,
+    ExplanationResponse,
     validate_article_text,
 )
 from apps.api.schemas.prediction import PredictionResponse
@@ -17,11 +23,16 @@ from apps.api.schemas.verification import (
     EvidencePassageResponse,
     VerificationResponse,
 )
+from apps.api.services.deepseek_explainer import (
+    DeepSeekExplainer,
+    DeepSeekExplanationError,
+)
 from apps.api.services.inference_service import InferenceService
 from fastapi import APIRouter, Depends, HTTPException, Request
 from ml.verification.pipeline import VerificationPipeline
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/analyze", response_model=AnalysisResponse)
@@ -32,6 +43,9 @@ def analyze(
         VerificationPipeline, Depends(get_verification_pipeline)
     ],
     inference: Annotated[InferenceService, Depends(get_inference_service)],
+    explainer: Annotated[
+        DeepSeekExplainer | None, Depends(get_deepseek_explainer)
+    ],
 ) -> AnalysisResponse:
     """Return a model prediction and the matching source-review workflow."""
 
@@ -93,6 +107,36 @@ def analyze(
             processing_time_ms=prediction.processing_time_ms,
             disclaimer=prediction.disclaimer,
         )
+    explanation_response = ExplanationResponse(
+        available=False,
+        error=(
+            "DeepSeek explanation is not configured."
+            if explainer is None
+            else "A prediction is required to generate an explanation."
+        ),
+    )
+    if explainer is not None and prediction is not None:
+        try:
+            explanation = explainer.explain(
+                label=prediction.label,
+                confidence=prediction.confidence,
+                confidence_method=getattr(prediction, "confidence_method", None),
+                verification_status=summary.status,
+                article_text=article_text,
+            )
+            explanation_response = ExplanationResponse(
+                available=True,
+                text=explanation.text,
+                model=explanation.model,
+            )
+        except DeepSeekExplanationError:
+            # A provider failure must not discard the local prediction or
+            # retrieved evidence, and should not expose provider response data.
+            logger.warning("DeepSeek explanation request failed")
+            explanation_response = ExplanationResponse(
+                available=False,
+                error="DeepSeek explanation is unavailable right now.",
+            )
     return AnalysisResponse(
         prediction=prediction_response,
         verification=VerificationResponse(
@@ -102,6 +146,7 @@ def analyze(
                 "transformer_retrieval" if transformer_retrieval else "standard"
             ),
         ),
+        explanation=explanation_response,
     )
 
 
